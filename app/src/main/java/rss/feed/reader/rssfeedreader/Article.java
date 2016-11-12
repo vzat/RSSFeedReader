@@ -40,4 +40,8 @@ public class Article {
     public void setLink(String link) {
         this.link = link;
     }
+
+    public String toString() {
+        return "Title: " + title + " Description: " + description + " Link: " + link;
+    }
 }

@@ -14,16 +14,27 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TaskComplete {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String xml;
-        new StringFromURL().execute("https://www.reddit.com/.rss");
-        // android.os.NetworkOnMainThreadException
+        new DataFromFeed(this).execute("https://www.reddit.com/.rss");
+
+//        ArrayList<Article> articles = XMLParser.getParserData("<rss> " +
+//                "<item><title>Title1</title><description>Desc1</description><link>www.google.com</link></item> " +
+//                "<item><title>Title2</title><description>Desc2</description><link>www.google.com</link></item> " +
+//                "<item><title>Title3</title><description>Desc3</description><link>www.google.com</link></item> " +
+//                "</rss>");
+//
+//        for (int i = 0 ; i < articles.size() ; i++) {
+//            System.out.println(articles.get(i));
+//        }
+
+//        System.out.println("Line Before");
+//        System.out.println("Before" + XMLParser.getTextFromTag("<feed><title>  Hello World! </title></feed>", "title", 0, 28) + "After");
 
 //        try {
 //            InputStream in = new URL("https://www.reddit.com/.rss").openStream();
@@ -48,30 +59,7 @@ public class MainActivity extends AppCompatActivity {
 //        System.out.println(articles.get(0).getLink());
     }
 
-    // AsyncTask<Params, Progress, Result>
-    private class StringFromURL extends AsyncTask<String, Void, String> {
-        protected String doInBackground(String... url) {
-            String xml;
-
-            try {
-                InputStream in = new URL("https://www.reddit.com/.rss").openStream();
-                try {
-                    xml = IOUtils.toString(in, StandardCharsets.UTF_8);
-                    return xml;
-                } finally {
-                    in.close();
-                }
-            } catch (MalformedURLException e) {
-                Log.e("URL Error ", e.toString());
-            } catch (IOException e) {
-                Log.e("IO Error ", e.toString());
-            }
-
-            return "ERROR";
-        }
-
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-        }
+    public void callback() {
+        System.out.println("The Async Task is Complete");
     }
 }
