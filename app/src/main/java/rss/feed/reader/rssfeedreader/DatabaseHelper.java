@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Name, Version and common Column Names
     private static final String DATABASE_NAME = "RSSDatabase";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
     private static final String KEY_ID = "_id";
 
     // Articles Table
@@ -51,9 +51,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                                                 KEY_ARTICLE_TITLE + " text, " +
                                                                 KEY_ARTICLE_DESCRIPTION + " text, " +
                                                                 KEY_ARTICLE_LINK + " text, " +
-                                                                KEY_ARTICLE_DATE + " text" +
+                                                                KEY_ARTICLE_DATE + " text, " +
                                                                 KEY_DIRECTORY_ID + " integer," +
-                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ");";
+                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + "));";
 
     private static final String CREATE_TABLE_DIRECTORY =        "create table " + TABLE_DIRECTORY + "(" +
                                                                 KEY_ID + " integer primary key autoincrement, " +
@@ -66,20 +66,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                                                 KEY_FEED_URL + " text);";
 
     private static final String CREATE_TABLE_FEED_DIRECTORY =   "create table " + TABLE_FEED_DIRECTORY + "(" +
-                                                                KEY_ID + " integer primary key autoincrement, " +
                                                                 KEY_FEED_ID + " integer, " +
                                                                 KEY_DIRECTORY_ID + " integer, " +
-                                                                "FOREIGN KEY(" + KEY_FEED_ID + ") REFERENCES " + TABLE_FEED + "(" + KEY_ID + ")," +
-                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ");";
+                                                                "FOREIGN KEY(" + KEY_FEED_ID + ") REFERENCES " + TABLE_FEED + "(" + KEY_ID + "), " +
+                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ")" +
+                                                                "PRIMARY KEY(" + KEY_FEED_ID + "," + KEY_DIRECTORY_ID + "));";
 
 
     private static final String CREATE_TABLE_FILTER =           "create table " + TABLE_FILTER + "(" +
                                                                 KEY_ID + " integer primary key autoincrement, " +
                                                                 KEY_FILTER_NAME + " text, " +
                                                                 KEY_DIRECTORY_ID + " integer, " +
-                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ");";
+                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + "));";
 
     private Context context;
+    private SQLiteDatabase rDB = null, wDB = null;
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -119,8 +120,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    private synchronized SQLiteDatabase openReadableDB() {
+        if (rDB == null) {
+            rDB = instance.getReadableDatabase();
+        }
+        return rDB;
+    }
+
+    private synchronized SQLiteDatabase openWritableDB() {
+        if (wDB == null) {
+            wDB = instance.getWritableDatabase();
+        }
+        return wDB;
+    }
+
+    public void closeDBs() {
+        if (rDB != null)
+            rDB.close();
+        if (wDB != null)
+            wDB.close();
+        if (instance != null)
+            instance.close();
+    }
+
     public long insertArticles(ArrayList<Article> articles) {
-        SQLiteDatabase db = instance.getWritableDatabase();
+        SQLiteDatabase db = openReadableDB();
         long totalRows = 0;
 
         for (int i = 0 ; i < articles.size() ; i++) {
@@ -135,29 +159,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (columnsInserted != -1)
                 totalRows += columnsInserted;
         }
-        db.close();
 
         return totalRows;
     }
 
+    // query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy)
     public Cursor getAllArticles() {
-        SQLiteDatabase db = instance.getReadableDatabase();
-        try {
-            return db.query(TABLE_ARTICLE,
-                            new String[] {
-                                    KEY_ID,
-                                    KEY_ARTICLE_TITLE,
-                                    KEY_ARTICLE_DESCRIPTION,
-                                    KEY_ARTICLE_LINK,
-                                    KEY_ARTICLE_DATE
-                            },
-                            null,
-                            null,
-                            null,
-                            null,
-                            null);
-        } finally {
-            db.close();
-        }
+        SQLiteDatabase db = openReadableDB();
+        return db.query(TABLE_ARTICLE,
+                        new String[] {
+                                KEY_ID,
+                                KEY_ARTICLE_TITLE,
+                                KEY_ARTICLE_DESCRIPTION,
+                                KEY_ARTICLE_LINK,
+                                KEY_ARTICLE_DATE
+                        },
+                        null,
+                        null,
+                        null,
+                        null,
+                        KEY_ARTICLE_DATE);
+    }
+
+    public int deleteArticlesFromDirectory(int directory) {
+        SQLiteDatabase db = openWritableDB();
+        return db.delete(TABLE_ARTICLE, null, null);
     }
 }

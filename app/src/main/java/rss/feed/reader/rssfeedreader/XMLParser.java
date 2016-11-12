@@ -24,7 +24,7 @@ public class XMLParser {
 
             // RSS Feed
             int startItem = data.indexOf("<item>", 0);
-            DateFormat pubDateFormat = new SimpleDateFormat("EEE, dd MM yyyy HH:mm::ss zzz");
+            DateFormat pubDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
 
             while (startItem != -1) {
                 // Get the position of the end tag of the item

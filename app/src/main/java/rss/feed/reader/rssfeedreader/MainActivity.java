@@ -3,6 +3,7 @@ package rss.feed.reader.rssfeedreader;
 import org.apache.commons.io.IOUtils;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,8 +25,10 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DatabaseHelper db = DatabaseHelper.getInstance(this);
+        db.deleteArticlesFromDirectory(1);
         new DataFromFeed(this, this).execute("https://www.reddit.com/.rss");
-        new DataFromFeed(this, this).execute("https://www.rte.ie/rss/");
+        new DataFromFeed(this, this).execute("http://www.rte.ie/news/rss/news-headlines.xml");
 
         noFeeds = 2;
 
@@ -74,16 +77,15 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
 
             try {
                 while (cursorArticles.moveToNext()) {
-                    Log.d("Cursor: ",   "Title: " + cursorArticles.getString(0) +
-                                        ", Description: " + cursorArticles.getString(1) +
-                                        ", Link: " + cursorArticles.getString(2) +
-                                        ", Date: " + cursorArticles.getString(3));
+                    Log.d("Cursor: ",   "Title: " + cursorArticles.getString(1) +
+                                        ", Description: " + cursorArticles.getString(2) +
+                                        ", Link: " + cursorArticles.getString(3) +
+                                        ", Date: " + cursorArticles.getString(4));
                 }
             } finally {
                 cursorArticles.close();
             }
+            db.closeDBs();
         }
-
-//        System.out.println("The Async Task is Complete");
     }
 }

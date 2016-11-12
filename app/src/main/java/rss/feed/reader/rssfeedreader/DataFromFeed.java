@@ -33,7 +33,8 @@ public class DataFromFeed extends AsyncTask<String, Void, String> {
 
                 ArrayList<Article> articles = XMLParser.getParserData(xml);
                 DatabaseHelper db = DatabaseHelper.getInstance(context);
-                db.insertArticles(articles);
+                if (articles != null)
+                    db.insertArticles(articles);
 
                 return xml;
             } finally {
