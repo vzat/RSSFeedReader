@@ -4,17 +4,20 @@ public class Article {
     private String title;
     private String description;
     private String link;
+    private String date;
 
-    public Article(String title, String description, String link) {
+    public Article(String title, String description, String link, String date) {
         this.title = title;
         this.description = description;
         this.link = link;
+        this.setDate(date);
     }
 
     public Article() {
         title = "Unknwon Title";
         description = "Unknown Description";
         link = "www.google.com";
+        setDate("???");
     }
 
     public String getTitle() {
@@ -43,5 +46,13 @@ public class Article {
 
     public String toString() {
         return "Title: " + title + " Description: " + description + " Link: " + link;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
