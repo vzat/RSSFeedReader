@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RSS Feed Reader</string>
+    <array name = "contextMenu">
+        <item>Edit</item>
+        <item>Delete</item>
+    </array>
 </resources>

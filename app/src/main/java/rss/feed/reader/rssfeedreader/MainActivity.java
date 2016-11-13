@@ -3,6 +3,7 @@ package rss.feed.reader.rssfeedreader;
 import org.apache.commons.io.IOUtils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -10,13 +11,19 @@ import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleCursorTreeAdapter;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +32,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements TaskComplete {
+public class MainActivity extends AppCompatActivity implements View.OnCreateContextMenuListener, TaskComplete {
 
     int noFeeds;
     ExpandableListView expandableListView;
@@ -40,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
 
         // Get Directory Types, Saved and Feed Directories
         db = DatabaseHelper.getInstance(this);
-        String[] typesColumns = {"_id", "directoryType"};
 
         directoryTypes = db.getDirectoryTypes();
 
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
                                                     new String[] {"directoryName"}, new int[] {R.id.directoryName}) {
             @Override
             protected Cursor getChildrenCursor(Cursor groupCursor) {
-                if ("Saved Directories".equals(groupCursor.getString(0))) {
+                if ("Saved Directories".equals(groupCursor.getString(1))) {
                     return db.getAllDirectories("Saved");
                 } else {
                     return db.getAllDirectories("Feed");
@@ -61,64 +67,7 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
         };
         expandableListView.setAdapter(treeAdapter);
 
-//        treeAdapter = new CursorTreeAdapter(directoryTypes, this) {
-//            @Override
-//            protected Cursor getChildrenCursor(Cursor groupCursor) {
-//                groupCursor.moveToNext();
-//                if ("Saved".equals(groupCursor.getString(0)))
-//                    return savedDirectories;
-//                else
-//                    return feedDirectories;
-//            }
-//
-//            @Override
-//            protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
-//                return null;
-//            }
-//
-//            @Override
-//            protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
-//
-//            }
-//
-//            @Override
-//            protected View newChildView(Context context, Cursor cursor, boolean isLastChild, ViewGroup parent) {
-//                return null;
-//            }
-//
-//            @Override
-//            protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
-//
-//            }
-//        }
-
-
-//        // Set the list views
-//        savedListView = (ListView) findViewById(R.id.savedListView);
-//        feedListView = (ListView) findViewById(R.id.feedListView);
-//
-//        // Open database and get the directories
-//        DatabaseHelper db = DatabaseHelper.getInstance(this);
-//        savedDirectories = db.getAllDirectories("Saved");
-//        feedDirectories = db.getAllDirectories("Feed");
-
-//        // Set the columns to get the data from and ids to map to
-//        String[] columns = {"directoryName"};
-//        int[] ids = {R.id.directoryName};
-//
-//        // Set the Saved Directories
-//        if (savedDirectories != null && savedDirectories.getCount() > 0) {
-//            savedAdapter = new SimpleCursorAdapter(this, R.layout.directory_row, savedDirectories, columns, ids, 1);
-//            savedListView.setAdapter(savedAdapter);
-//
-//        }
-//
-//        // Set the Feed Directories
-//        if (feedDirectories != null && savedDirectories.getCount() > 0) {
-//            feedAdapter = new SimpleCursorAdapter(this, R.layout.directory_row, feedDirectories, columns, ids, 1);
-//            feedListView.setAdapter(feedAdapter);
-//        }
-
+        registerForContextMenu(expandableListView);
 
 
 
@@ -128,6 +77,108 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
 //        new DataFromFeed(this, this).execute("http://www.rte.ie/news/rss/news-headlines.xml");
 //
 //        noFeeds = 2;
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.directory, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        if (menuItem.getItemId() == R.id.addDirectory) {
+            Intent addDirectory = new Intent(this, AddDirectory.class);
+            startActivityForResult(addDirectory, 1);
+            return true;
+        }
+        return false;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == 0) {
+                treeAdapter.setChildrenCursor(0, db.getAllDirectories("Saved"));
+            } else if (resultCode == 1) {
+                treeAdapter.setChildrenCursor(1, db.getAllDirectories("Feed"));
+            }
+
+            if (resultCode != -1)
+                showToast("Directory Added");
+        }
+    }
+
+
+
+    public void onCreateContextMenu(ContextMenu contextMenu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.expandableListView) {
+            ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
+
+            // Get the Position of the Directory Selected
+            int groupPosition = ExpandableListView.getPackedPositionGroup(info.packedPosition);
+            int childPosition = ExpandableListView.getPackedPositionChild(info.packedPosition);
+
+            if (groupPosition != -1 && childPosition != -1) {
+                // Get the Directory Selected
+                Cursor directorySelected = treeAdapter.getChild(groupPosition, childPosition);
+
+                // Set the Context Menu Header to the Directory Name
+                contextMenu.setHeaderTitle(directorySelected.getString(1));
+
+
+                // Reference the following code is from https://www.mikeplate.com/2010/01/21/show-a-context-menu-for-long-clicks-in-an-android-listview/
+
+                // Get the Context Menu Options create it
+                String[] menuItems = getResources().getStringArray(R.array.contextMenu);
+                for (int i = 0; i < menuItems.length; i++) {
+                    contextMenu.add(Menu.NONE, i, i, menuItems[i]);
+                }
+
+                // Reference Complete
+            }
+        }
+    }
+
+    public boolean onContextItemSelected(MenuItem menuItem) {
+        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) menuItem.getMenuInfo();
+
+        // Get the Index of the Directory Selected
+        int menuItemIndex = menuItem.getItemId();
+
+        if (menuItemIndex == 0) {
+            // Edit Directory
+        }
+        if (menuItemIndex == 1) {
+            // Delete Directory
+
+            // Get the Position of the Directory Selected
+            int groupPosition = ExpandableListView.getPackedPositionGroup(info.packedPosition);
+            int childPosition = ExpandableListView.getPackedPositionChild(info.packedPosition);
+
+            // Get the Directory Selected
+            Cursor directorySelected = treeAdapter.getChild(groupPosition, childPosition);
+
+            // Get the name of the Directory
+            String directoryName = directorySelected.getString(1);
+
+            // Delete the Directory
+            db.deleteDirectory(directorySelected.getInt(0));
+
+            // Refresh the Directories
+            if ("Saved".equals(directorySelected.getString(2))) {
+                treeAdapter.setChildrenCursor(0, db.getAllDirectories("Saved"));
+            } else if ("Feed".equals(directorySelected.getString(2))) {
+                treeAdapter.setChildrenCursor(1, db.getAllDirectories("Feed"));
+            }
+
+            showToast("Directory " + directoryName + " removed");
+        }
+
+        return true;
+    }
+
+    public void showToast(String text) {
+        Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public void callback() {

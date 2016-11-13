@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Name, Version and common Column Names
     private static final String DATABASE_NAME = "RSSDatabase";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 18;
     private static final String KEY_ID = "_id";
 
     // Articles Table
@@ -33,12 +33,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Feeds Table
     private static final String TABLE_FEED = "Feeds";
-    private static final String KEY_FEED_ID = "feedID";
+//    private static final String KEY_FEED_ID = "feedID";
     private static final String KEY_FEED_NAME = "feedName";
     private static final String KEY_FEED_URL = "feedURL";
 
     // FeedDirectories Table
-    private static final String TABLE_FEED_DIRECTORY = "FeedDirectories";
+//    private static final String TABLE_FEED_DIRECTORY = "FeedDirectories";
 
     // Filters Table
     private static final String TABLE_FILTER = "Filters";
@@ -65,14 +65,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_FEED =             "create table " + TABLE_FEED + "(" +
                                                                 KEY_ID + " integer primary key autoincrement, " +
                                                                 KEY_FEED_NAME + " text, " +
-                                                                KEY_FEED_URL + " text);";
-
-    private static final String CREATE_TABLE_FEED_DIRECTORY =   "create table " + TABLE_FEED_DIRECTORY + "(" +
-                                                                KEY_FEED_ID + " integer, " +
+                                                                KEY_FEED_URL + " text, " +
                                                                 KEY_DIRECTORY_ID + " integer, " +
-                                                                "FOREIGN KEY(" + KEY_FEED_ID + ") REFERENCES " + TABLE_FEED + "(" + KEY_ID + "), " +
-                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ")" +
-                                                                "PRIMARY KEY(" + KEY_FEED_ID + "," + KEY_DIRECTORY_ID + "));";
+                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + "));";
+
+//    private static final String CREATE_TABLE_FEED_DIRECTORY =   "create table " + TABLE_FEED_DIRECTORY + "(" +
+//                                                                KEY_FEED_ID + " integer, " +
+//                                                                KEY_DIRECTORY_ID + " integer, " +
+//                                                                "FOREIGN KEY(" + KEY_FEED_ID + ") REFERENCES " + TABLE_FEED + "(" + KEY_ID + "), " +
+//                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ")" +
+//                                                                "PRIMARY KEY(" + KEY_FEED_ID + "," + KEY_DIRECTORY_ID + "));";
 
 
     private static final String CREATE_TABLE_FILTER =           "create table " + TABLE_FILTER + "(" +
@@ -100,15 +102,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return instance;
     }
 
-    public static synchronized DatabaseHelper getInstance() {
-        return instance;
-    }
-
     public void onCreate(SQLiteDatabase db) {
         try {
             db.execSQL(CREATE_TABLE_DIRECTORY);
             db.execSQL(CREATE_TABLE_FEED);
-            db.execSQL(CREATE_TABLE_FEED_DIRECTORY);
+//            db.execSQL(CREATE_TABLE_FEED_DIRECTORY);
             db.execSQL(CREATE_TABLE_ARTICLE);
             db.execSQL(CREATE_TABLE_FILTER);
             db.execSQL(CREATE_TABLE_DIRECTORY_TYPES);
@@ -123,17 +121,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.insert(TABLE_DIRECTORY_TYPES, null, typesValues2);
 
             // Temp directories
-//            for (int i = 0 ; i < 10 ; i++) {
-//                ContentValues savedValues = new ContentValues();
-//                savedValues.put(KEY_DIRECTORY_NAME, "savedDirectory" + i);
-//                savedValues.put(KEY_DIRECTORY_TYPE, "Saved");
-//                db.insert(TABLE_DIRECTORY, null, savedValues);
-//
-//                ContentValues feedValues = new ContentValues();
-//                feedValues.put(KEY_DIRECTORY_NAME, "feedDirectory" + i);
-//                feedValues.put(KEY_DIRECTORY_TYPE, "Feed");
-//                db.insert(TABLE_DIRECTORY, null, feedValues);
-//            }
+            for (int i = 0 ; i < 10 ; i++) {
+                ContentValues savedValues = new ContentValues();
+                savedValues.put(KEY_DIRECTORY_NAME, "savedDirectory" + i);
+                savedValues.put(KEY_DIRECTORY_TYPE, "Saved");
+                db.insert(TABLE_DIRECTORY, null, savedValues);
+
+                ContentValues feedValues = new ContentValues();
+                feedValues.put(KEY_DIRECTORY_NAME, "feedDirectory" + i);
+                feedValues.put(KEY_DIRECTORY_TYPE, "Feed");
+                db.insert(TABLE_DIRECTORY, null, feedValues);
+            }
 
         } catch(SQLiteException e) {
             Log.e("Cannot Create Tables ", e.toString());
@@ -144,7 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             db.execSQL("drop table if exists " + TABLE_FILTER);
             db.execSQL("drop table if exists " + TABLE_ARTICLE);
-            db.execSQL("drop table if exists " + TABLE_FEED_DIRECTORY);
+//            db.execSQL("drop table if exists " + TABLE_FEED_DIRECTORY);
             db.execSQL("drop table if exists " + TABLE_FEED);
             db.execSQL("drop table if exists " + TABLE_DIRECTORY);
             db.execSQL("drop table if exists " + TABLE_DIRECTORY_TYPES);
@@ -226,7 +224,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_DIRECTORY,
                         new String[] {
                                 KEY_ID,
-                                KEY_DIRECTORY_NAME
+                                KEY_DIRECTORY_NAME,
+                                KEY_DIRECTORY_TYPE
                         },
                         "upper(" + KEY_DIRECTORY_TYPE + ") LIKE upper('%" + directoryType + "%')",
                         null,
@@ -257,5 +256,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_DIRECTORY_TYPE, directoryType);
 
         return db.insert(TABLE_DIRECTORY, null, values);
+    }
+
+    public int deleteDirectory(int directoryID) {
+        SQLiteDatabase db = openWritableDB();
+
+        Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        if (c.moveToFirst()) {
+            while ( !c.isAfterLast() ) {
+                System.out.println("Table Name=> "+c.getString(0));
+                c.moveToNext();
+            }
+        }
+
+        // Delete Feeds from Directory
+        db.delete(TABLE_FEED, KEY_DIRECTORY_ID + " = " + directoryID, null);
+
+        // Delete Articles from Directory
+        db.delete(TABLE_ARTICLE, KEY_DIRECTORY_ID + " = " + directoryID, null);
+
+        // Delete Directory
+        return db.delete(TABLE_DIRECTORY, KEY_ID + " = " + directoryID, null);
     }
 }
