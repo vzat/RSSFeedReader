@@ -5,9 +5,12 @@ import org.apache.commons.io.IOUtils;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,53 +22,48 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements TaskComplete {
 
     int noFeeds;
+    ListView savedListView, feedListView;
+    SimpleCursorAdapter savedAdapter, feedAdapter;
+    Cursor savedDirectories, feedDirectories;
+    // Change to ExpandableListView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set the list views
+        savedListView = (ListView) findViewById(R.id.savedListView);
+        feedListView = (ListView) findViewById(R.id.feedListView);
+
+        // Open database and get the directories
         DatabaseHelper db = DatabaseHelper.getInstance(this);
-        db.deleteArticlesFromDirectory(1);
-        new DataFromFeed(this, this).execute("https://www.reddit.com/.rss");
-        new DataFromFeed(this, this).execute("http://www.rte.ie/news/rss/news-headlines.xml");
+        savedDirectories = db.getAllDirectories("Saved");
+        feedDirectories = db.getAllDirectories("Feed");
 
-        noFeeds = 2;
+        // Set the columns to get the data from and ids to map to
+        String[] columns = {"directoryName"};
+        int[] ids = {R.id.directoryName};
 
-//        ArrayList<Article> articles = XMLParser.getParserData("<rss> " +
-//                "<item><title>Title1</title><description>Desc1</description><link>www.google.com</link></item> " +
-//                "<item><title>Title2</title><description>Desc2</description><link>www.google.com</link></item> " +
-//                "<item><title>Title3</title><description>Desc3</description><link>www.google.com</link></item> " +
-//                "</rss>");
+        // Set the Saved Directories
+        if (savedDirectories != null && savedDirectories.getCount() > 0) {
+            savedAdapter = new SimpleCursorAdapter(this, R.layout.directory_row, savedDirectories, columns, ids, 1);
+            savedListView.setAdapter(savedAdapter);
+
+        }
+
+        // Set the Feed Directories
+        if (feedDirectories != null && savedDirectories.getCount() > 0) {
+            feedAdapter = new SimpleCursorAdapter(this, R.layout.directory_row, feedDirectories, columns, ids, 1);
+            feedListView.setAdapter(feedAdapter);
+        }
+
+//        DatabaseHelper db = DatabaseHelper.getInstance(this);
+//        db.deleteArticlesFromDirectory(1);
+//        new DataFromFeed(this, this).execute("https://www.reddit.com/.rss");
+//        new DataFromFeed(this, this).execute("http://www.rte.ie/news/rss/news-headlines.xml");
 //
-//        for (int i = 0 ; i < articles.size() ; i++) {
-//            System.out.println(articles.get(i));
-//        }
-
-//        System.out.println("Line Before");
-//        System.out.println("Before" + XMLParser.getTextFromTag("<feed><title>  Hello World! </title></feed>", "title", 0, 28) + "After");
-
-//        try {
-//            InputStream in = new URL("https://www.reddit.com/.rss").openStream();
-//            try {
-//                xml = IOUtils.toString(in, StandardCharsets.UTF_8);
-//                System.out.println(xml);
-//            } finally {
-//                in.close();
-//            }
-//        } catch (MalformedURLException e) {
-//            Log.e("URL Error ", e.toString());
-//        } catch (IOException e) {
-//            Log.e("IO Error ", e.toString());
-//        }
-
-//        String XMLTest = "<item><title>Hello</title><link>www.link1.com</link><description>Desc</description></item>";
-//        ArrayList<Article> articles= XMLParser.getParserData(XMLTest);
-//        // No array gets returned !!!!!
-//
-//        System.out.println(articles.get(0).getTitle());
-//        System.out.println(articles.get(0).getDescription());
-//        System.out.println(articles.get(0).getLink());
+//        noFeeds = 2;
     }
 
     public void callback() {
