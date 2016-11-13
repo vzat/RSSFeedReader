@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
     ExpandableListView expandableListView;
     SimpleCursorTreeAdapter treeAdapter;
     Cursor directoryTypes;
+    DatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,9 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
         setContentView(R.layout.activity_main);
 
         // Get Directory Types, Saved and Feed Directories
-        DatabaseHelper db = DatabaseHelper.getInstance(this);
+        db = DatabaseHelper.getInstance(this);
+        String[] typesColumns = {"_id", "directoryType"};
+
         directoryTypes = db.getDirectoryTypes();
 
         expandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
@@ -49,15 +52,14 @@ public class MainActivity extends AppCompatActivity implements TaskComplete {
                                                     new String[] {"directoryName"}, new int[] {R.id.directoryName}) {
             @Override
             protected Cursor getChildrenCursor(Cursor groupCursor) {
-                DatabaseHelper db = DatabaseHelper.getInstance();
-                if ("Saved".equals(groupCursor.getString(0)))
+                if ("Saved Directories".equals(groupCursor.getString(0))) {
                     return db.getAllDirectories("Saved");
-                else
+                } else {
                     return db.getAllDirectories("Feed");
+                }
             }
         };
         expandableListView.setAdapter(treeAdapter);
-
 
 //        treeAdapter = new CursorTreeAdapter(directoryTypes, this) {
 //            @Override
