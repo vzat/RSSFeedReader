@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Name, Version and common Column Names
     private static final String DATABASE_NAME = "RSSDatabase";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 10;
     private static final String KEY_ID = "_id";
 
     // Articles Table
@@ -94,6 +94,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return instance;
     }
 
+    public static synchronized DatabaseHelper getInstance() {
+        return instance;
+    }
+
     public void onCreate(SQLiteDatabase db) {
         try {
             db.execSQL(CREATE_TABLE_DIRECTORY);
@@ -101,6 +105,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_TABLE_FEED_DIRECTORY);
             db.execSQL(CREATE_TABLE_ARTICLE);
             db.execSQL(CREATE_TABLE_FILTER);
+            db.execSQL("create table directoryTypes(_id integer primary key autoincrement, directoryType text);");
+            db.execSQL("insert into directoryTypes(directoryType) values ('Saved');");
+            db.execSQL("insert into directoryTypes(directoryType) values ('Feed');");
 
             for (int i = 0 ; i < 10 ; i++) {
                 ContentValues savedValues = new ContentValues();
@@ -210,6 +217,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         null,
                         null,
                         null,
+                        null);
+    }
+
+    public Cursor getDirectoryTypes() {
+        SQLiteDatabase db = openReadableDB();
+        return db.query(true,
+                        "directoryTypes",
+                        new String[] {
+                                "_id",
+                                "directoryType"
+                        },
+                        null,
+                        null,
+                        null,
+                        null,
+                        "directoryType DESC",
                         null);
     }
 
