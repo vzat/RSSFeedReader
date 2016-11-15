@@ -258,6 +258,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_DIRECTORY, null, values);
     }
 
+    public int updateDirectory(int directoryID, String directoryName, String directoryType) {
+        if (directoryID != -1) {
+            SQLiteDatabase db = openWritableDB();
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_DIRECTORY_NAME, directoryName);
+            values.put(KEY_DIRECTORY_TYPE, directoryType);
+
+            return db.update(TABLE_DIRECTORY, values, KEY_ID + " = " + directoryID, null);
+        }
+        return 0;
+    }
+
     public int deleteDirectory(int directoryID) {
         SQLiteDatabase db = openWritableDB();
 

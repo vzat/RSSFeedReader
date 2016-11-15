@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if (menuItem.getItemId() == R.id.addDirectory) {
             Intent addDirectory = new Intent(this, AddDirectory.class);
+            addDirectory.putExtra("requestCode", 1);
             startActivityForResult(addDirectory, 1);
             return true;
         }
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
+        if (requestCode == 1 || requestCode == 2) {
             if (resultCode == 0) {
                 treeAdapter.setChildrenCursor(0, db.getAllDirectories("Saved"));
             } else if (resultCode == 1) {
@@ -103,11 +104,12 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
             }
 
             if (resultCode != -1)
-                showToast("Directory Added");
+                if (requestCode == 1)
+                    showToast("Directory Added");
+                else
+                    showToast("Directory Edited");
         }
     }
-
-
 
     public void onCreateContextMenu(ContextMenu contextMenu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         if (v.getId() == R.id.expandableListView) {
@@ -144,12 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
         // Get the Index of the Directory Selected
         int menuItemIndex = menuItem.getItemId();
 
-        if (menuItemIndex == 0) {
-            // Edit Directory
-        }
-        if (menuItemIndex == 1) {
-            // Delete Directory
-
+        if (menuItemIndex == 0 || menuItemIndex == 1) {
             // Get the Position of the Directory Selected
             int groupPosition = ExpandableListView.getPackedPositionGroup(info.packedPosition);
             int childPosition = ExpandableListView.getPackedPositionChild(info.packedPosition);
@@ -157,20 +154,36 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
             // Get the Directory Selected
             Cursor directorySelected = treeAdapter.getChild(groupPosition, childPosition);
 
-            // Get the name of the Directory
+            // Get the name and type of the Directory
+            int directoryID = directorySelected.getInt(0);
             String directoryName = directorySelected.getString(1);
+            String directoryType = directorySelected.getString(2);
 
-            // Delete the Directory
-            db.deleteDirectory(directorySelected.getInt(0));
+            if (menuItemIndex == 0) {
+                // Edit Directory
+                Intent editDirectory = new Intent(this, AddDirectory.class);
+                editDirectory.putExtra("requestCode", 2);
+                editDirectory.putExtra("directoryID", directoryID);
+                editDirectory.putExtra("directoryName", directoryName);
+                editDirectory.putExtra("directoryType", directoryType);
+                startActivityForResult(editDirectory, 2);
+            }
+            if (menuItemIndex == 1) {
+                // Delete Directory
 
-            // Refresh the Directories
-            if ("Saved".equals(directorySelected.getString(2))) {
-                treeAdapter.setChildrenCursor(0, db.getAllDirectories("Saved"));
-            } else if ("Feed".equals(directorySelected.getString(2))) {
-                treeAdapter.setChildrenCursor(1, db.getAllDirectories("Feed"));
+                // Delete the Directory
+                db.deleteDirectory(directorySelected.getInt(0));
+
+                // Refresh the Directories
+                if ("Saved".equals(directorySelected.getString(2))) {
+                    treeAdapter.setChildrenCursor(0, db.getAllDirectories("Saved"));
+                } else if ("Feed".equals(directorySelected.getString(2))) {
+                    treeAdapter.setChildrenCursor(1, db.getAllDirectories("Feed"));
+                }
+
+                showToast("Directory " + directoryName + " removed");
             }
 
-            showToast("Directory " + directoryName + " removed");
         }
 
         return true;
