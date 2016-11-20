@@ -26,7 +26,8 @@
             android:name=".AddFeed"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateVisible" />
-        <activity android:name=".EditFeeds"></activity>
+        <activity android:name=".EditFeeds" />
+        <activity android:name=".ArticleActivity"></activity>
     </application>
 
 </manifest>

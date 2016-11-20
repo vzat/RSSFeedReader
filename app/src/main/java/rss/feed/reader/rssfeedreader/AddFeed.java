@@ -22,6 +22,8 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener {
 
         setResult(-1);
 
+        setTitle("Add Feed");
+
         intent = getIntent();
         requestCode = intent.getIntExtra("requestCode", 1);
         directoryID = intent.getIntExtra("directoryID", 1);
@@ -29,6 +31,15 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener {
         feedURL = (EditText) findViewById(R.id.feedURL);
         addFeed = (Button) findViewById(R.id.addFeed);
         addFeed.setOnClickListener(this);
+
+        if (requestCode == 2) {
+            feedName.setText(intent.getStringExtra("feedName"));
+            feedName.setSelection(intent.getStringExtra("feedName").length());
+            feedURL.setText(intent.getStringExtra("feedURL"));
+            feedURL.setSelection(intent.getStringExtra("feedURL").length());
+            addFeed.setText("Edit Feed");
+            setTitle("Edit Feed");
+        }
     }
 
     public void onClick(View v) {
@@ -44,7 +55,7 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener {
                 if (requestCode == 1) {
                     db.insertFeed(name, url, directoryID);
                 } else if (requestCode == 2) {
-
+                    db.updateFeed(intent.getIntExtra("feedID", -1), name, url);
                 }
 
                 setResult(1);

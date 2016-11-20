@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-public class FeedDirectory extends AppCompatActivity implements TaskComplete {
+public class FeedDirectory extends AppCompatActivity implements TaskComplete, ListView.OnItemClickListener {
     int noFeeds;
     int directoryID;
     String directoryName;
@@ -37,6 +39,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete {
         db = DatabaseHelper.getInstance(this);
         adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectory(directoryID), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(this);
 
 //        db.deleteArticlesFromDirectory(directoryID);
 
@@ -93,6 +96,19 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete {
                 showToast("Feed Added");
             else
                 showToast("Feed Edited");
+    }
+
+    public void onItemClick(AdapterView l, View v, int position, long id) {
+        Cursor cursor = (Cursor) adapter.getItem(position);
+
+        Intent goToArticle = new Intent(this, ArticleActivity.class);
+        goToArticle.putExtra("articleID", cursor.getInt(0));
+        goToArticle.putExtra("articleTitle", cursor.getString(1));
+        goToArticle.putExtra("articleDescription", cursor.getString(2));
+        goToArticle.putExtra("articleLink", cursor.getString(3));
+        goToArticle.putExtra("articleDate", cursor.getString(4));
+
+        startActivity(goToArticle);
     }
 
     public void refresh() {

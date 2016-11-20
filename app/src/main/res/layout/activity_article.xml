@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_add_feed"
+    android:id="@+id/activity_article"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -9,27 +9,19 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="rss.feed.reader.rssfeedreader.AddFeed">
+    tools:context="rss.feed.reader.rssfeedreader.ArticleActivity">
 
-    <EditText
+    <TextView
+        android:text="TextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:ems="10"
-        android:id="@+id/feedName"
-        android:hint="Feed Name" />
+        android:id="@+id/textView3"
+        android:textSize="18sp"
+        android:textStyle="normal|bold" />
 
-    <EditText
+    <TextView
+        android:text="TextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:id="@+id/feedURL"
-        android:hint="Feed URL"
-        android:inputType="textUri" />
-
-    <Button
-        android:text="Add Feed"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/addFeed" />
+        android:id="@+id/textView4" />
 </LinearLayout>

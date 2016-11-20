@@ -351,4 +351,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.insert(TABLE_FEED, null, values);
     }
+
+    public int deleteFeed(int feedID) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        return db.delete(TABLE_FEED, KEY_ID + " = " + feedID, null);
+    }
+
+    public int updateFeed(int feedID, String feedName, String feedURL) {
+        if (feedID != -1) {
+            SQLiteDatabase db = openWritableDB();
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_FEED_NAME, feedName);
+            values.put(KEY_FEED_URL, feedURL);
+
+            return db.update(TABLE_FEED, values, KEY_ID + " = " + feedID, null);
+        }
+        return 0;
+    }
+
 }

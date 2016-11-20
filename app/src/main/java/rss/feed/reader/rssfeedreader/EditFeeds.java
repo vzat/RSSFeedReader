@@ -1,11 +1,17 @@
 package rss.feed.reader.rssfeedreader;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -33,6 +39,8 @@ public class EditFeeds extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.list);
         adapter = new SimpleCursorAdapter(this, R.layout.row_feed, db.getFeedsFromDirectory(directoryID), new String[] {"feedName", "feedURL"}, new int[] {R.id.feedName, R.id.feedURL}, 0);
         listView.setAdapter(adapter);
+
+        registerForContextMenu(listView);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -63,5 +71,67 @@ public class EditFeeds extends AppCompatActivity {
                 Toast.makeText(this, "Feed Added", Toast.LENGTH_SHORT).show();
             else if (requestCode == 2)
                 Toast.makeText(this, "Feed Edited", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onCreateContextMenu(ContextMenu contextMenu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.list) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+            Cursor feed = (Cursor) adapter.getItem(info.position);
+
+            contextMenu.setHeaderTitle(feed.getString(1));
+
+            // Reference the following code is from https://www.mikeplate.com/2010/01/21/show-a-context-menu-for-long-clicks-in-an-android-listview/
+
+            // Get the Context Menu Options create it
+            String[] menuItems = getResources().getStringArray(R.array.contextMenu);
+            for (int i = 0; i < menuItems.length; i++) {
+                contextMenu.add(Menu.NONE, i, i, menuItems[i]);
+            }
+
+            // Reference Complete
+        }
+    }
+
+    public boolean onContextItemSelected(MenuItem menuItem) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuItem.getMenuInfo();
+
+        // Get the Index of the Directory Selected
+        int menuItemIndex = menuItem.getItemId();
+
+        if (menuItemIndex == 0 || menuItemIndex == 1) {
+            // Get the Feed Selected
+            Cursor feed = (Cursor) adapter.getItem(info.position);
+
+            // Get the name and type of the Directory
+            Integer feedID = feed.getInt(0);
+            String feedName = feed.getString(1);
+            String feedURL = feed.getString(2);
+
+            if (menuItemIndex == 0) {
+                // Edit Feed
+                Intent editFeed = new Intent(this, AddFeed.class);
+                editFeed.putExtra("requestCode", 2);
+                editFeed.putExtra("feedID", feedID);
+                editFeed.putExtra("feedName", feedName);
+                editFeed.putExtra("feedURL", feedURL);
+
+                startActivityForResult(editFeed, 2);
+            }
+            if (menuItemIndex == 1) {
+                // Delete Feed
+
+                // Delete the Directory
+                db.deleteFeed(feedID);
+
+                // Refresh the Feeds
+                adapter.changeCursor(db.getFeedsFromDirectory(directoryID));
+
+                Toast.makeText(this, "Feed " + feedName + " removed", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+        return true;
     }
 }
