@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 // AsyncTask<Params, Progress, Result>
-public class DataFromFeed extends AsyncTask<String, Void, String> {
+public class DataFromFeed extends AsyncTask<Object, Void, Void> {
     TaskComplete taskComplete;
     Context context;
 
@@ -23,20 +23,18 @@ public class DataFromFeed extends AsyncTask<String, Void, String> {
         this.context = context;
     }
 
-    protected String doInBackground(String... url) {
+    protected Void doInBackground(Object... args) {
         String xml;
 
         try {
-            InputStream in = new URL(url[0]).openStream();
+            InputStream in = new URL((String)args[0]).openStream();
             try {
                 xml = IOUtils.toString(in, StandardCharsets.UTF_8);
 
                 ArrayList<Article> articles = XMLParser.getParserData(xml);
                 DatabaseHelper db = DatabaseHelper.getInstance(context);
                 if (articles != null)
-                    db.insertArticles(articles);
-
-                return xml;
+                    db.insertArticles(articles, (Integer)args[1]);
             } finally {
                 in.close();
             }
@@ -46,16 +44,11 @@ public class DataFromFeed extends AsyncTask<String, Void, String> {
             Log.e("IO Error ", e.toString());
         }
 
-        return "ERROR";
+        return null;
     }
 
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-//        ArrayList<Article> articles = XMLParser.getParserData(result);
-//
-//        for (int i = 0 ; i < articles.size() ; i++) {
-//            System.out.println(articles.get(i));
-//        }
 
         // Callback to the Activity
         taskComplete.callback();

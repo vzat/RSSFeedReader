@@ -192,7 +192,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             instance.close();
     }
 
-    public long insertArticles(ArrayList<Article> articles) {
+    public long insertArticles(ArrayList<Article> articles, int directoryID) {
         SQLiteDatabase db = openReadableDB();
         long totalRows = 0;
 
@@ -202,6 +202,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_ARTICLE_DESCRIPTION, articles.get(i).getDescription());
             values.put(KEY_ARTICLE_LINK, articles.get(i).getLink());
             values.put(KEY_ARTICLE_DATE, articles.get(i).getDate());
+            values.put(KEY_DIRECTORY_ID, directoryID);
 
             // Sum the total number of rows inserted
             long columnsInserted = db.insert(TABLE_ARTICLE, null, values);
@@ -224,6 +225,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                 KEY_ARTICLE_DATE
                         },
                         null,
+                        null,
+                        null,
+                        null,
+                        KEY_ARTICLE_DATE);
+    }
+
+    public Cursor getAllArticlesFromDirectory(int directoryID) {
+        SQLiteDatabase db = openReadableDB();
+        return db.query(TABLE_ARTICLE,
+                        new String[] {
+                                KEY_ID,
+                                KEY_ARTICLE_TITLE,
+                                KEY_ARTICLE_DESCRIPTION,
+                                KEY_ARTICLE_LINK,
+                                KEY_ARTICLE_DATE
+                        },
+                        KEY_DIRECTORY_ID + " = " + directoryID,
                         null,
                         null,
                         null,
