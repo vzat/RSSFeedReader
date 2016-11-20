@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Name, Version and common Column Names
     private static final String DATABASE_NAME = "RSSDatabase";
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 24;
     private static final String KEY_ID = "_id";
 
     // Articles Table
@@ -24,6 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_ARTICLE_DESCRIPTION = "description";
     private static final String KEY_ARTICLE_LINK = "link";
     private static final String KEY_ARTICLE_DATE = "date";
+    private static final String KEY_SAVED_DIRECTORY_ID = "savedDirectoryID";
 
     // Directories Table
     private static final String TABLE_DIRECTORY = "Directories";
@@ -55,7 +56,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                                                 KEY_ARTICLE_LINK + " text, " +
                                                                 KEY_ARTICLE_DATE + " text, " +
                                                                 KEY_DIRECTORY_ID + " integer," +
-                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + "));";
+                                                                KEY_SAVED_DIRECTORY_ID + " integer," +
+                                                                "FOREIGN KEY(" + KEY_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + ")," +
+                                                                "FOREIGN KEY(" + KEY_SAVED_DIRECTORY_ID + ") REFERENCES " + TABLE_DIRECTORY + "(" + KEY_ID + "));";
 
     private static final String CREATE_TABLE_DIRECTORY =        "create table " + TABLE_DIRECTORY + "(" +
                                                                 KEY_ID + " integer primary key autoincrement, " +
@@ -120,18 +123,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             typesValues2.put(KEY_DIRECTORY_TYPE, "Feed Directories");
             db.insert(TABLE_DIRECTORY_TYPES, null, typesValues2);
 
-            // Temp directories
-            for (int i = 0 ; i < 10 ; i++) {
-                ContentValues savedValues = new ContentValues();
-                savedValues.put(KEY_DIRECTORY_NAME, "savedDirectory" + i);
-                savedValues.put(KEY_DIRECTORY_TYPE, "Saved");
-                db.insert(TABLE_DIRECTORY, null, savedValues);
+            // Temp feeds
+//            ContentValues feedsValues1 = new ContentValues();
+//            feedsValues1.put(KEY_FEED_NAME, "Reddit");
+//            feedsValues1.put(KEY_FEED_URL, "https://www.reddit.com/.rss");
+//            feedsValues1.put(KEY_DIRECTORY_ID, 1);
+//            db.insert(TABLE_FEED, null, feedsValues1);
+//
+//            ContentValues feedsValues2 = new ContentValues();
+//            feedsValues2.put(KEY_FEED_NAME, "RTE");
+//            feedsValues2.put(KEY_FEED_URL, "http://www.rte.ie/news/rss/news-headlines.xml");
+//            feedsValues2.put(KEY_DIRECTORY_ID, 1);
+//            db.insert(TABLE_FEED, null, feedsValues2);
 
-                ContentValues feedValues = new ContentValues();
-                feedValues.put(KEY_DIRECTORY_NAME, "feedDirectory" + i);
-                feedValues.put(KEY_DIRECTORY_TYPE, "Feed");
-                db.insert(TABLE_DIRECTORY, null, feedValues);
-            }
+            // Temp directories
+//            for (int i = 0 ; i < 10 ; i++) {
+//                ContentValues savedValues = new ContentValues();
+//                savedValues.put(KEY_DIRECTORY_NAME, "savedDirectory" + i);
+//                savedValues.put(KEY_DIRECTORY_TYPE, "Saved");
+//                db.insert(TABLE_DIRECTORY, null, savedValues);
+//
+//                ContentValues feedValues = new ContentValues();
+//                feedValues.put(KEY_DIRECTORY_NAME, "feedDirectory" + i);
+//                feedValues.put(KEY_DIRECTORY_TYPE, "Feed");
+//                db.insert(TABLE_DIRECTORY, null, feedValues);
+//            }
 
         } catch(SQLiteException e) {
             Log.e("Cannot Create Tables ", e.toString());
@@ -214,9 +230,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         KEY_ARTICLE_DATE);
     }
 
-    public int deleteArticlesFromDirectory() {
+    public int deleteArticlesFromDirectory(int directoryID) {
         SQLiteDatabase db = openWritableDB();
-        return db.delete(TABLE_ARTICLE, null, null);
+
+        ContentValues values = new ContentValues();
+        values.putNull(KEY_DIRECTORY_ID);
+
+        // Remove the link between the directory and the articles if the article is saved in a saved directory
+        db.update(TABLE_ARTICLE, values, KEY_DIRECTORY_ID + " = " + directoryID + " AND " + KEY_SAVED_DIRECTORY_ID + " IS NOT NULL", null);
+
+        // Delete all the other articles
+        return db.delete(TABLE_ARTICLE, KEY_DIRECTORY_ID + " = " + directoryID, null);
     }
 
     public Cursor getAllDirectories(String directoryType) {
@@ -248,6 +272,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         KEY_DIRECTORY_TYPE + " DESC");
     }
 
+    public Cursor getFeedsFromDirectory(int directoryID) {
+        SQLiteDatabase db = openReadableDB();
+        return db.query(TABLE_FEED,
+                        new String[] {
+                                KEY_ID,
+                                KEY_FEED_NAME,
+                                KEY_FEED_URL
+                        },
+                        KEY_DIRECTORY_ID + " = " + directoryID,
+                        null,
+                        null,
+                        null,
+                        null);
+    }
+
     public long insertDirectory(String directoryName, String directoryType) {
         SQLiteDatabase db = openWritableDB();
 
@@ -274,14 +313,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int deleteDirectory(int directoryID) {
         SQLiteDatabase db = openWritableDB();
 
-        Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
-        if (c.moveToFirst()) {
-            while ( !c.isAfterLast() ) {
-                System.out.println("Table Name=> "+c.getString(0));
-                c.moveToNext();
-            }
-        }
-
         // Delete Feeds from Directory
         db.delete(TABLE_FEED, KEY_DIRECTORY_ID + " = " + directoryID, null);
 
@@ -290,5 +321,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Delete Directory
         return db.delete(TABLE_DIRECTORY, KEY_ID + " = " + directoryID, null);
+    }
+
+    public long insertFeed(String name, String url, int directoryID) {
+        SQLiteDatabase db = openWritableDB();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_FEED_NAME, name);
+        values.put(KEY_FEED_URL, url);
+        values.put(KEY_DIRECTORY_ID, directoryID);
+
+        return db.insert(TABLE_FEED, null, values);
     }
 }

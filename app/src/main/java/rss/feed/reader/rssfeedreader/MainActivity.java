@@ -32,7 +32,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnCreateContextMenuListener, TaskComplete {
+public class MainActivity extends AppCompatActivity implements View.OnCreateContextMenuListener, ExpandableListView.OnChildClickListener {
 
     int noFeeds;
     ExpandableListView expandableListView;
@@ -64,10 +64,28 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
                     return db.getAllDirectories("Feed");
                 }
             }
+
+            @Override
+            public boolean isChildSelectable(int groupPosition, int childPosition) {
+                return true;
+            }
         };
         expandableListView.setAdapter(treeAdapter);
-
+        expandableListView.setOnChildClickListener(this);
         registerForContextMenu(expandableListView);
+
+        // Temp add Feeds
+//        Cursor feedDir = db.getAllDirectories("Feed");
+//        feedDir.moveToNext();
+//        db.insertFeed("Reddit", "https://www.reddit.com/.rss", feedDir.getInt(0));
+//        db.insertFeed("RTE", "http://www.rte.ie/news/rss/news-headlines.xml", feedDir.getInt(0));
+
+//        expandableListView.setOnClickListener(new ExpandableListView.OnChildClickListener() {
+//            public boolean onChildClick(ExpandableListView l, View v, int groupPos, int childPos, long id) {
+//                    showToast("Hello");
+//                  return true;
+//            }
+//        });
 
 
 
@@ -109,6 +127,22 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
                 else
                     showToast("Directory Edited");
         }
+    }
+
+    public boolean onChildClick(ExpandableListView l, View v, int groupPosition, int childPosition, long id) {
+        Cursor directorySelected = treeAdapter.getChild(groupPosition, childPosition);
+
+        if ("Feed".equals(directorySelected.getString(2))) {
+            Intent goToDirectory = new Intent(this, FeedDirectory.class);
+            goToDirectory.putExtra("directoryID", directorySelected.getInt(0));
+            goToDirectory.putExtra("directoryName", directorySelected.getString(1));
+            startActivity(goToDirectory);
+        } else if ("Saved".equals(directorySelected.getString(2))) {
+
+        }
+
+
+        return true;
     }
 
     public void onCreateContextMenu(ContextMenu contextMenu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -194,24 +228,24 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
         toast.show();
     }
 
-    public void callback() {
-        noFeeds --;
-
-        if (noFeeds == 0) {
-            DatabaseHelper db = DatabaseHelper.getInstance(this);
-            Cursor cursorArticles = db.getAllArticles();
-
-            try {
-                while (cursorArticles.moveToNext()) {
-                    Log.d("Cursor: ",   "Title: " + cursorArticles.getString(1) +
-                                        ", Description: " + cursorArticles.getString(2) +
-                                        ", Link: " + cursorArticles.getString(3) +
-                                        ", Date: " + cursorArticles.getString(4));
-                }
-            } finally {
-                cursorArticles.close();
-            }
-            db.closeDBs();
-        }
-    }
+//    public void callback() {
+//        noFeeds --;
+//
+//        if (noFeeds == 0) {
+//            DatabaseHelper db = DatabaseHelper.getInstance(this);
+//            Cursor cursorArticles = db.getAllArticles();
+//
+//            try {
+//                while (cursorArticles.moveToNext()) {
+//                    Log.d("Cursor: ",   "Title: " + cursorArticles.getString(1) +
+//                                        ", Description: " + cursorArticles.getString(2) +
+//                                        ", Link: " + cursorArticles.getString(3) +
+//                                        ", Date: " + cursorArticles.getString(4));
+//                }
+//            } finally {
+//                cursorArticles.close();
+//            }
+//            db.closeDBs();
+//        }
+//    }
 }
