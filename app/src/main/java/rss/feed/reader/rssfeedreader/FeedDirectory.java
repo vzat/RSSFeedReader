@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
@@ -18,7 +19,9 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     int noFeeds;
     int directoryID;
     String directoryName;
+
     DatabaseHelper db;
+    ProgressBar progressBar;
     ListView listView;
     SimpleCursorAdapter adapter;
 
@@ -26,6 +29,9 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_directory);
+
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
 
         // Get data about this directory
         directoryID = this.getIntent().getIntExtra("directoryID", 0);
@@ -112,6 +118,10 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     }
 
     public void refresh() {
+        // Show the progressBar and animate the listView
+        listView.animate().translationY(listView.getHeight()).alpha(1.0f);
+        progressBar.setVisibility(View.VISIBLE);
+
         // Delete all the articles from the directory
         db.deleteArticlesFromDirectory(directoryID);
 
@@ -134,6 +144,10 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
 
         if (noFeeds == 0) {
             adapter.changeCursor(db.getAllArticlesFromDirectory(directoryID));
+
+            // Hide the progress bar and animate the listView
+            progressBar.setVisibility(View.GONE);
+            listView.animate().translationY(0).alpha(0.0f);
         }
     }
 
