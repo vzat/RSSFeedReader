@@ -24,6 +24,8 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
 
         setResult(-1);
 
+        setTitle("Add Directory");
+
         intent = getIntent();
         requestCode = intent.getIntExtra("requestCode", 1);
         directoryName = (EditText) findViewById(R.id.directoryName);
@@ -32,6 +34,7 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
         addDirectory.setOnClickListener(this);
 
         if (requestCode == 2) {
+            setTitle("Edit Directory");
             addDirectory.setText("Edit Directory");
 
             directoryName.setText(intent.getStringExtra("directoryName"));
