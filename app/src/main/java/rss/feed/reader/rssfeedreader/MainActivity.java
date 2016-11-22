@@ -132,14 +132,15 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
     public boolean onChildClick(ExpandableListView l, View v, int groupPosition, int childPosition, long id) {
         Cursor directorySelected = treeAdapter.getChild(groupPosition, childPosition);
 
-        if ("Feed".equals(directorySelected.getString(2))) {
+//        if ("Feed".equals(directorySelected.getString(2))) {
             Intent goToDirectory = new Intent(this, FeedDirectory.class);
             goToDirectory.putExtra("directoryID", directorySelected.getInt(0));
             goToDirectory.putExtra("directoryName", directorySelected.getString(1));
+            goToDirectory.putExtra("directoryType", directorySelected.getString(2));
             startActivity(goToDirectory);
-        } else if ("Saved".equals(directorySelected.getString(2))) {
-
-        }
+//        } else if ("Saved".equals(directorySelected.getString(2))) {
+//
+//        }
 
 
 

@@ -72,30 +72,23 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
     public void onItemClick(AdapterView l, View v, int position, long id) {
         Cursor cursor = (Cursor) adapter.getItem(position);
 
-        savedDirectoryID = cursor.getInt(0);
-
-        System.out.println("CLICKED ON ITEM");
+        //savedDirectoryID = cursor.getInt(0);
 
         // Reference the following code is from http://stackoverflow.com/questions/8337180/custom-single-choice-listview
         for (int i = 0 ; i < l.getCount() ; i++) {
             RadioButton radioButton = (RadioButton) l.getChildAt(i).findViewById(R.id.radio);
             radioButton.setChecked(false);
-            System.out.println("FALSE " + i);
         }
-
-        RadioButton radioButton = (RadioButton) v.findViewById(R.id.radio);
-        radioButton.setChecked(true);
         // Reference Complete
-    }
 
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//
-//        // Update the article in the database with the savedDirectory
-//        db.setSavedDirectory(articleID, savedDirectoryID);
-//
-//        finish();
-//    }
+        if (cursor.getInt(0) != savedDirectoryID) {
+            RadioButton radioButton = (RadioButton) v.findViewById(R.id.radio);
+            radioButton.setChecked(true);
+            savedDirectoryID = cursor.getInt(0);
+        } else {
+            savedDirectoryID = -1;
+        }
+    }
 
     public void onPause() {
         super.onPause();

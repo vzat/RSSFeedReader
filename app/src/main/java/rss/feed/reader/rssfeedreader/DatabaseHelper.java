@@ -231,8 +231,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         KEY_ARTICLE_DATE);
     }
 
-    public Cursor getAllArticlesFromDirectory(int directoryID) {
+    public Cursor getAllArticlesFromDirectory(int directoryID, String directoryType) {
         SQLiteDatabase db = openReadableDB();
+        String key_directory;
+
+        if ("Feed".equals(directoryType)) {
+            key_directory = KEY_DIRECTORY_ID;
+        } else {
+            key_directory = KEY_SAVED_DIRECTORY_ID;
+        }
+
         return db.query(TABLE_ARTICLE,
                         new String[] {
                                 KEY_ID,
@@ -241,7 +249,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                 KEY_ARTICLE_LINK,
                                 KEY_ARTICLE_DATE
                         },
-                        KEY_DIRECTORY_ID + " = " + directoryID,
+                        key_directory + " = " + directoryID,
                         null,
                         null,
                         null,
@@ -377,6 +385,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             ContentValues values = new ContentValues();
             values.put(KEY_SAVED_DIRECTORY_ID, savedDirectoryID);
+
+            return db.update(TABLE_ARTICLE, values, KEY_ID + " = " + articleID, null);
+        } else if (articleID != -1) {
+            SQLiteDatabase db = openWritableDB();
+
+            ContentValues values = new ContentValues();
+            values.putNull(KEY_SAVED_DIRECTORY_ID);
 
             return db.update(TABLE_ARTICLE, values, KEY_ID + " = " + articleID, null);
         }

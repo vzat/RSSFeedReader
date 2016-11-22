@@ -18,7 +18,7 @@ import android.widget.Toast;
 public class FeedDirectory extends AppCompatActivity implements TaskComplete, ListView.OnItemClickListener {
     int noFeeds;
     int directoryID;
-    String directoryName;
+    String directoryName, directoryType;
 
     DatabaseHelper db;
     ProgressBar progressBar;
@@ -36,6 +36,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         // Get data about this directory
         directoryID = this.getIntent().getIntExtra("directoryID", 0);
         directoryName = this.getIntent().getStringExtra("directoryName");
+        directoryType = this.getIntent().getStringExtra("directoryType");
 
         // Set the title of the Activity
         this.setTitle(directoryName);
@@ -43,43 +44,50 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         // Show Articles
         listView = (ListView) findViewById(R.id.list);
         db = DatabaseHelper.getInstance(this);
-        adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectory(directoryID), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
+        adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectory(directoryID, directoryType), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.feed_directory, menu);
-        return true;
+        if ("Feed".equals(directoryType)) {
+            MenuInflater menuInflater = getMenuInflater();
+            menuInflater.inflate(R.menu.feed_directory, menu);
+            return true;
+        } else return false;
     }
 
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.refreshDirectory) {
-            refresh();
-            return true;
-        }
-        if (menuItem.getItemId() == R.id.editFeed) {
-            Intent editFeed = new Intent(this, EditFeeds.class);
-            editFeed.putExtra("directoryID", directoryID);
-            startActivity(editFeed);
-            return true;
+        if ("Feed".equals(directoryType)) {
+            if (menuItem.getItemId() == R.id.refreshDirectory) {
+                refresh();
+                return true;
+            }
+            if (menuItem.getItemId() == R.id.editFeed) {
+                Intent editFeed = new Intent(this, EditFeeds.class);
+                editFeed.putExtra("directoryID", directoryID);
+                startActivity(editFeed);
+                return true;
+            }
         }
         return false;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 || requestCode == 2) {
-            if (resultCode == 1) {
-                refresh();
-            }
+        if (requestCode == 1 && "Saved".equals(directoryType)) {
+            adapter.swapCursor(db.getAllArticlesFromDirectory(directoryID, directoryType));
         }
-
-        if (resultCode != -1)
-            if (requestCode == 1)
-                showToast("Feed Added");
-            else
-                showToast("Feed Edited");
+//        if (requestCode == 1 || requestCode == 2) {
+//            if (resultCode == 1) {
+//                refresh();
+//            }
+//        }
+//
+//        if (resultCode != -1)
+//            if (requestCode == 1)
+//                showToast("Feed Added");
+//            else
+//                showToast("Feed Edited");
     }
 
     public void onItemClick(AdapterView l, View v, int position, long id) {
@@ -92,7 +100,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         goToArticle.putExtra("articleLink", cursor.getString(3));
         goToArticle.putExtra("articleDate", cursor.getString(4));
 
-        startActivity(goToArticle);
+        startActivityForResult(goToArticle, 1);
     }
 
     public void refresh() {
@@ -121,7 +129,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         noFeeds --;
 
         if (noFeeds == 0) {
-            adapter.changeCursor(db.getAllArticlesFromDirectory(directoryID));
+            adapter.changeCursor(db.getAllArticlesFromDirectory(directoryID, directoryType));
 
             // Hide the progress bar and animate the listView
             progressBar.setVisibility(View.GONE);
