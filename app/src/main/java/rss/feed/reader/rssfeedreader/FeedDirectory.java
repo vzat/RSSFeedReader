@@ -46,23 +46,6 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectory(directoryID), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-
-//        db.deleteArticlesFromDirectory(directoryID);
-
-        // *** Refresh Directory
-        // Get all the feeds from the directory
-//        Cursor feeds = db.getFeedsFromDirectory(directoryID);
-//
-//        // Get the data from feeds
-//        noFeeds = feeds.getCount();
-//        try {
-//            while (feeds.moveToNext()) {
-//                new DataFromFeed(this, this).execute(feeds.getString(2));
-//                System.out.println("Parsing Feed");
-//            }
-//        } finally {
-//            feeds.close();
-//        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -77,11 +60,6 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
             return true;
         }
         if (menuItem.getItemId() == R.id.editFeed) {
-//            Intent addFeed = new Intent(this, AddFeed.class);
-//            addFeed.putExtra("requestCode", 1);
-//            addFeed.putExtra("directoryID", directoryID);
-//            startActivityForResult(addFeed, 1);
-
             Intent editFeed = new Intent(this, EditFeeds.class);
             editFeed.putExtra("directoryID", directoryID);
             startActivity(editFeed);
@@ -119,7 +97,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
 
     public void refresh() {
         // Show the progressBar and animate the listView
-        listView.animate().translationY(listView.getHeight()).alpha(1.0f);
+        listView.animate().translationY(listView.getHeight());
         progressBar.setVisibility(View.VISIBLE);
 
         // Delete all the articles from the directory
@@ -147,7 +125,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
 
             // Hide the progress bar and animate the listView
             progressBar.setVisibility(View.GONE);
-            listView.animate().translationY(0).alpha(0.0f);
+            listView.animate().translationY(0.0f);
         }
     }
 

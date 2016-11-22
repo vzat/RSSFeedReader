@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 public class ArticleActivity extends AppCompatActivity {
@@ -42,5 +45,22 @@ public class ArticleActivity extends AppCompatActivity {
         description.setText(articleDescription);
         link.setText(articleLink);
         date.setText(articleDate);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.article, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        if (menuItem.getItemId() == R.id.saveArticle) {
+
+            Intent saveArticle = new Intent(this, SaveArticle.class);
+            saveArticle.putExtra("articleID", articleID);
+            startActivity(saveArticle);
+            return true;
+        }
+        return false;
     }
 }

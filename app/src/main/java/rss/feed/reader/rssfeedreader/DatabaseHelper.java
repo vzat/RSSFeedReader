@@ -371,4 +371,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return 0;
     }
 
+    public int setSavedDirectory(int articleID, int savedDirectoryID) {
+        if (articleID != -1 && savedDirectoryID != -1) {
+            SQLiteDatabase db = openWritableDB();
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_SAVED_DIRECTORY_ID, savedDirectoryID);
+
+            return db.update(TABLE_ARTICLE, values, KEY_ID + " = " + articleID, null);
+        }
+        return 0;
+    }
+
+    public int getSavedDirectory(int articleID) {
+        SQLiteDatabase db = openReadableDB();
+        Cursor cursor =  db.query(TABLE_ARTICLE,
+                        new String[] {
+                                KEY_SAVED_DIRECTORY_ID
+                        },
+                        KEY_ID + " = " + articleID,
+                        null,
+                        null,
+                        null,
+                        null);
+
+        try {
+            if (cursor != null && cursor.getCount() == 0)
+                return -1;
+            cursor.moveToNext();
+            if (cursor.isNull(0))
+                return -1;
+            return cursor.getInt(0);
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+    }
 }
