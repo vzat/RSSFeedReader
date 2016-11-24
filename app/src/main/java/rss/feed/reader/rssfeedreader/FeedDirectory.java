@@ -69,12 +69,19 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
                 startActivity(editFeed);
                 return true;
             }
+            if (menuItem.getItemId() == R.id.editFilters) {
+                Intent editFilters = new Intent(this, FilterActivity.class);
+                editFilters.putExtra("directoryID", directoryID);
+                editFilters.putExtra("directoryName", directoryName);
+                startActivityForResult(editFilters, 2);
+                return true;
+            }
         }
         return false;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && "Saved".equals(directoryType)) {
+        if ((requestCode == 1 && "Saved".equals(directoryType)) || (requestCode == 2)) {
             adapter.swapCursor(db.getAllArticlesFromDirectory(directoryID, directoryType));
         }
 //        if (requestCode == 1 || requestCode == 2) {

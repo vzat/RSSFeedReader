@@ -29,6 +29,8 @@
         <activity android:name=".EditFeeds" />
         <activity android:name=".ArticleActivity" />
         <activity android:name=".SaveArticle" />
+        <activity android:name=".FilterActivity" />
+        <activity android:name=".AddFilter"></activity>
     </application>
 
 </manifest>

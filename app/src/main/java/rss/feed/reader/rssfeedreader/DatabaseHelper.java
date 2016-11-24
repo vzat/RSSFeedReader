@@ -232,6 +232,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllArticlesFromDirectory(int directoryID, String directoryType) {
+        // Filter the articles
+
         SQLiteDatabase db = openReadableDB();
         String key_directory;
 
@@ -401,14 +403,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int getSavedDirectory(int articleID) {
         SQLiteDatabase db = openReadableDB();
         Cursor cursor =  db.query(TABLE_ARTICLE,
-                        new String[] {
-                                KEY_SAVED_DIRECTORY_ID
-                        },
-                        KEY_ID + " = " + articleID,
-                        null,
-                        null,
-                        null,
-                        null);
+                                new String[] {
+                                        KEY_SAVED_DIRECTORY_ID
+                                },
+                                KEY_ID + " = " + articleID,
+                                null,
+                                null,
+                                null,
+                                null);
 
         try {
             if (cursor != null && cursor.getCount() == 0)
@@ -421,5 +423,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (cursor != null)
                 cursor.close();
         }
+    }
+
+    public Cursor getFilters(int directoryID) {
+        SQLiteDatabase db = openReadableDB();
+        return db.query(TABLE_FILTER,
+                        new String[] {
+                                KEY_ID,
+                                KEY_FILTER_NAME,
+                        },
+                        KEY_DIRECTORY_ID + " = " + directoryID,
+                        null,
+                        null,
+                        null,
+                        null);
+    }
+
+    public long insertFilter(String filterName, int directoryID) {
+        SQLiteDatabase db = openWritableDB();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_FILTER_NAME, filterName);
+        values.put(KEY_DIRECTORY_ID, directoryID);
+
+        return db.insert(TABLE_FILTER, null, values);
     }
 }

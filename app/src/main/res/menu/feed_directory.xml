@@ -3,14 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:title="Edit Filters"
+        android:id="@+id/editFilters"
+        android:icon="@drawable/ic_filter_list_black_24dp" />
+    <item
         android:title="Edit Feed"
         android:id="@+id/editFeed"
-        android:icon="@drawable/ic_edit_black_24dp"
-        app:showAsAction="always"/>
+        android:icon="@drawable/ic_edit_black_24dp" />
 
     <item
         android:title="Refresh Directory"
         android:id="@+id/refreshDirectory"
-        android:icon="@drawable/ic_refresh_black_24dp"
-        app:showAsAction="always"/>
+        android:icon="@drawable/ic_refresh_black_24dp" />
 </menu>

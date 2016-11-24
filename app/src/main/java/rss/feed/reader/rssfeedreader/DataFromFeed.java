@@ -29,6 +29,7 @@ public class DataFromFeed extends AsyncTask<Object, Void, Void> {
         try {
             InputStream in = new URL((String)args[0]).openStream();
             try {
+                // The IOUtils method is from the external library Apache Commons IO
                 xml = IOUtils.toString(in, StandardCharsets.UTF_8);
 
                 ArrayList<Article> articles = XMLParser.getParserData(xml);
