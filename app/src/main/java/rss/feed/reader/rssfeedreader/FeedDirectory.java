@@ -3,6 +3,7 @@ package rss.feed.reader.rssfeedreader;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,17 +22,18 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     String directoryName, directoryType;
 
     DatabaseHelper db;
-    ProgressBar progressBar;
+//    ProgressBar progressBar;
     ListView listView;
     SimpleCursorAdapter adapter;
+    SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_directory);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+//        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+//        progressBar.setVisibility(View.GONE);
 
         // Get data about this directory
         directoryID = this.getIntent().getIntExtra("directoryID", 0);
@@ -42,9 +44,15 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         this.setTitle(directoryName);
 
         // Show Articles
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            public void onRefresh() {
+                refresh();
+            }
+        });
         listView = (ListView) findViewById(R.id.list);
         db = DatabaseHelper.getInstance(this);
-        adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectory(directoryID, directoryType), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
+        adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
     }
@@ -60,6 +68,11 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if ("Feed".equals(directoryType)) {
             if (menuItem.getItemId() == R.id.refreshDirectory) {
+                swipeRefresh.post(new Runnable() {
+                    public void run() {
+                        swipeRefresh.setRefreshing(true);
+                    }
+                });
                 refresh();
                 return true;
             }
@@ -82,7 +95,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == 1 && "Saved".equals(directoryType)) || (requestCode == 2)) {
-            adapter.swapCursor(db.getAllArticlesFromDirectory(directoryID, directoryType));
+            adapter.swapCursor(db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType));
         }
 //        if (requestCode == 1 || requestCode == 2) {
 //            if (resultCode == 1) {
@@ -111,9 +124,8 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     }
 
     public void refresh() {
-        // Show the progressBar and animate the listView
+        // Animate the listView
         listView.animate().translationY(listView.getHeight());
-        progressBar.setVisibility(View.VISIBLE);
 
         // Delete all the articles from the directory
         db.deleteArticlesFromDirectory(directoryID);
@@ -136,10 +148,15 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         noFeeds --;
 
         if (noFeeds == 0) {
-            adapter.changeCursor(db.getAllArticlesFromDirectory(directoryID, directoryType));
+            adapter.changeCursor(db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType));
 
-            // Hide the progress bar and animate the listView
-            progressBar.setVisibility(View.GONE);
+            // Show the listView and hide the progress swipeRefresh
+            swipeRefresh.post(new Runnable() {
+                public void run() {
+                    swipeRefresh.setRefreshing(false);
+                }
+            });
+
             listView.animate().translationY(0.0f);
         }
     }

@@ -231,9 +231,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         KEY_ARTICLE_DATE);
     }
 
-    public Cursor getAllArticlesFromDirectory(int directoryID, String directoryType) {
-        // Filter the articles
+    public Cursor getAllArticlesFromDirectoryFiltered(int directoryID, String directoryType) {
+        SQLiteDatabase db = openReadableDB();
 
+        // Check the type of directory
+        if ("Feed".equals(directoryType)) {
+            Cursor filters = db.query(  TABLE_FILTER,
+                    new String[] {KEY_FILTER_NAME},
+                    KEY_DIRECTORY_ID + " = " + directoryID,
+                    null,
+                    null,
+                    null,
+                    null);
+
+            // Check if there are any filters
+            if (filters != null && filters.getCount() > 0) {
+                // Get only the articles that contain all the filters
+                try {
+                    return db.rawQuery(
+                            "select articles.* " +
+                            "from articles left outer join filters on (articles.directoryID = filters.directoryID) " +
+                            "where  articles.directoryID = " + directoryID + " AND " +
+                                    "(upper(articles.title) LIKE '%' || upper(filters.filterName) || '%' OR " +
+                                    "upper(articles.description) LIKE '%' || upper(filters.filterName) || '%') " +
+                            "group by articles._id " +
+                            "having count(articles._id) = ( select count(*) " +
+                                                            "from filters " +
+                                                            "where directoryID = articles.directoryID);", null);
+                } finally {
+                    filters.close();
+                }
+            } else {
+                // Otherwise get all the articles
+                try {
+                    return getAllArticlesFromDirectory(directoryID, directoryType);
+                } finally {
+                    if (filters != null)
+                        filters.close();
+                }
+            }
+        }
+
+        // If it's a saved directory then there are no filters
+        return getAllArticlesFromDirectory(directoryID, directoryType);
+    }
+
+    public Cursor getAllArticlesFromDirectory(int directoryID, String directoryType) {
         SQLiteDatabase db = openReadableDB();
         String key_directory;
 
