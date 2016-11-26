@@ -1,8 +1,11 @@
 package rss.feed.reader.rssfeedreader;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -49,12 +52,17 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
             public void onRefresh() {
                 refresh();
             }
-        });
+});
         listView = (ListView) findViewById(R.id.list);
         db = DatabaseHelper.getInstance(this);
         adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
+
+        // Disable the swipe refresh layout if it's a saved directory
+        if ("Saved".equals(directoryType)) {
+            swipeRefresh.setEnabled(false);
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -79,6 +87,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
             if (menuItem.getItemId() == R.id.editFeed) {
                 Intent editFeed = new Intent(this, EditFeeds.class);
                 editFeed.putExtra("directoryID", directoryID);
+                editFeed.putExtra("directoryName", directoryName);
                 startActivity(editFeed);
                 return true;
             }
@@ -127,20 +136,31 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         // Animate the listView
         listView.animate().translationY(listView.getHeight());
 
-        // Delete all the articles from the directory
-        db.deleteArticlesFromDirectory(directoryID);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Delete all the articles from the directory
+            db.deleteArticlesFromDirectory(directoryID);
 
-        // Get all the feeds from the directory
-        Cursor feeds = db.getFeedsFromDirectory(directoryID);
+            // Get all the feeds from the directory
+            Cursor feeds = db.getFeedsFromDirectory(directoryID);
 
-        // Get the data from feeds
-        noFeeds = feeds.getCount();
-        try {
-            while (feeds.moveToNext()) {
-                new DataFromFeed(this, this).execute(feeds.getString(2), directoryID);
+            // Get the data from feeds
+            noFeeds = feeds.getCount();
+            try {
+                while (feeds.moveToNext()) {
+                    new DataFromFeed(this, this).execute(feeds.getString(2), directoryID);
+                }
+            } finally {
+                feeds.close();
             }
-        } finally {
-            feeds.close();
+        } else {
+            showToast("No Network Connection Available");
+            swipeRefresh.post(new Runnable() {
+                public void run() {
+                    swipeRefresh.setRefreshing(false);
+                }
+            });
         }
     }
 

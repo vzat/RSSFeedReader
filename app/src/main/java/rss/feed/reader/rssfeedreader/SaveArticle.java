@@ -19,7 +19,6 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
     Intent intent;
 
     ListView listView;
-//    SimpleCursorAdapter adapter;
     CursorRadioAdapter adapter;
     DatabaseHelper db;
 
@@ -59,7 +58,7 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
         intent = getIntent();
         articleID = intent.getIntExtra("articleID", -1);
         savedDirectoryID = db.getSavedDirectory(articleID);
-        System.out.println(savedDirectoryID);
+        setTitle("Save " + intent.getStringExtra("articleTitle"));
 
         // Set up listView
         listView = (ListView) findViewById(R.id.list);

@@ -21,6 +21,7 @@ public class ArticleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
+        setTitle("");
 
         intent = getIntent();
 
@@ -58,6 +59,7 @@ public class ArticleActivity extends AppCompatActivity {
 
             Intent saveArticle = new Intent(this, SaveArticle.class);
             saveArticle.putExtra("articleID", articleID);
+            saveArticle.putExtra("articleTitle", articleTitle);
             startActivity(saveArticle);
             return true;
         }

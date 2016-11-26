@@ -257,7 +257,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             "group by articles._id " +
                             "having count(articles._id) = ( select count(*) " +
                                                             "from filters " +
-                                                            "where directoryID = articles.directoryID);", null);
+                                                            "where directoryID = articles.directoryID)" +
+                            "order by date desc", null);
                 } finally {
                     filters.close();
                 }
@@ -298,7 +299,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         null,
                         null,
                         null,
-                        KEY_ARTICLE_DATE);
+                        KEY_ARTICLE_DATE + " desc");
     }
 
     public int deleteArticlesFromDirectory(int directoryID) {
@@ -388,7 +389,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_FEED, KEY_DIRECTORY_ID + " = " + directoryID, null);
 
         // Delete Articles from Directory
-        db.delete(TABLE_ARTICLE, KEY_DIRECTORY_ID + " = " + directoryID, null);
+        deleteArticlesFromDirectory(directoryID);
+
+        // Delete Filters from Directory
+        db.delete(TABLE_FILTER, KEY_DIRECTORY_ID + " = " + directoryID, null);
 
         // Delete Directory
         return db.delete(TABLE_DIRECTORY, KEY_ID + " = " + directoryID, null);
@@ -490,5 +494,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_DIRECTORY_ID, directoryID);
 
         return db.insert(TABLE_FILTER, null, values);
+    }
+
+    public int deleteFilter(int filterID) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        return db.delete(TABLE_FILTER, KEY_ID + " = " + filterID, null);
+    }
+
+    public int updateFilter(int filterID, String filterName) {
+        if (filterID != -1) {
+            SQLiteDatabase db = openWritableDB();
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_FILTER_NAME, filterName);
+
+            return db.update(TABLE_FILTER, values, KEY_ID + " = " + filterID, null);
+        }
+        return 0;
     }
 }

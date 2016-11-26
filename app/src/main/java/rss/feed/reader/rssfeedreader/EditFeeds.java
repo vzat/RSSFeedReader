@@ -29,10 +29,9 @@ public class EditFeeds extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_feeds);
 
-        setTitle("Edit Feeds");
-
         intent = getIntent();
         directoryID = intent.getIntExtra("directoryID", 1);
+        setTitle(intent.getStringExtra("directoryName") + " Feeds");
 
         // Set up listView
         db = DatabaseHelper.getInstance(this);
@@ -96,7 +95,7 @@ public class EditFeeds extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem menuItem) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuItem.getMenuInfo();
 
-        // Get the Index of the Directory Selected
+        // Get the Index of the Feed Selected
         int menuItemIndex = menuItem.getItemId();
 
         if (menuItemIndex == 0 || menuItemIndex == 1) {

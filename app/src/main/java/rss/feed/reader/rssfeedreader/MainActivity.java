@@ -205,8 +205,6 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
                 startActivityForResult(editDirectory, 2);
             }
             if (menuItemIndex == 1) {
-                // Delete Directory
-
                 // Delete the Directory
                 db.deleteDirectory(directorySelected.getInt(0));
 

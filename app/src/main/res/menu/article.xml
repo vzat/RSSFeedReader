@@ -5,6 +5,6 @@
     <item
         android:title="Save Article"
         android:id="@+id/saveArticle"
-        android:icon="@drawable/ic_star_black_24dp"
+        android:icon="@drawable/ic_star_white_24dp"
         app:showAsAction="always" />
 </menu>

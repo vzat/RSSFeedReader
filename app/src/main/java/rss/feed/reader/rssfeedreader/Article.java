@@ -14,7 +14,7 @@ public class Article {
     }
 
     public Article() {
-        title = "Unknwon Title";
+        title = "Unknown Title";
         description = "Unknown Description";
         link = "www.google.com";
         setDate("???");

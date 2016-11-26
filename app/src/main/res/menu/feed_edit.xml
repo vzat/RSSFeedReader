@@ -5,6 +5,6 @@
     <item
         android:title="Add Feed"
         android:id="@+id/addFeed"
-        android:icon="@drawable/ic_add_black_24dp"
+        android:icon="@drawable/ic_add_white_24dp"
         app:showAsAction="always"/>
 </menu>
