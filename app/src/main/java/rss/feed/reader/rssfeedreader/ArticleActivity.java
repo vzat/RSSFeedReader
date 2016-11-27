@@ -8,6 +8,7 @@ import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 public class ArticleActivity extends AppCompatActivity {
@@ -64,5 +65,13 @@ public class ArticleActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    public void loadPage(View v) {
+        String linkURL = ((TextView) v).getText().toString();
+        Intent loadURL = new Intent(this, MyWebView.class);
+        loadURL.putExtra("linkURL", linkURL);
+        loadURL.putExtra("articleTitle", articleTitle);
+        startActivity(loadURL);
     }
 }

@@ -37,9 +37,12 @@
 
     <TextView
         android:text="TextView"
-        android:autoLink="web"
+        android:linksClickable="false"
+        android:clickable="true"
+        android:onClick="loadPage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
         android:id="@+id/articleLink" />
 </LinearLayout>
 </ScrollView>

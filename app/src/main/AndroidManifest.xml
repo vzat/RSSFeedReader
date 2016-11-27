@@ -31,7 +31,9 @@
         <activity android:name=".FilterActivity" />
         <activity
             android:name=".AddFilter"
-            android:windowSoftInputMode="stateVisible" />/>
+            android:windowSoftInputMode="stateVisible" />
+        />
+        <activity android:name=".MyWebView"></activity>
     </application>
 
 </manifest>

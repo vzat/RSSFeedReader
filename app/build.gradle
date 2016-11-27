@@ -17,6 +17,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        pickFirst  'META-INF/LICENSE'
+    }
 }
 
 dependencies {
@@ -27,4 +30,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    compile 'org.jsoup:jsoup:1.10.1'
 }
