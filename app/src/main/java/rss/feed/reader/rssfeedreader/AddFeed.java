@@ -14,14 +14,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class AddFeed extends AppCompatActivity implements View.OnClickListener {
+public class AddFeed extends AppCompatActivity implements View.OnClickListener, TaskComplete {
     Intent intent;
     int requestCode;
     int directoryID;
     EditText feedName, feedURL;
     Button addFeed;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,8 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener {
         feedURL = (EditText) findViewById(R.id.feedURL);
         addFeed = (Button) findViewById(R.id.addFeed);
         addFeed.setOnClickListener(this);
+        progressBar = (ProgressBar) findViewById(R.id.loadingFeed);
+        progressBar.setVisibility(View.GONE);
 
         if (requestCode == 2) {
             feedName.setText(intent.getStringExtra("feedName"));
@@ -57,25 +61,48 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener {
             String url = feedURL.getText().toString().trim();
 
             if (name.length() > 0 && url.length() > 0) {
-                DatabaseHelper db = DatabaseHelper.getInstance(this);
-
-                // Either insert or edit feed
-                if (requestCode == 1) {
-                    db.insertFeed(name, url, directoryID);
-                } else if (requestCode == 2) {
-                    db.updateFeed(intent.getIntExtra("feedID", -1), name, url);
+                // Add https in front of the link if there is none or modify it if it's not secure
+                if (!url.contains("http")) {
+                    url = "https://" + url;
+                } else if (!url.contains("https")) {
+                    url = url.replace("http", "https");
                 }
 
-                setResult(1);
-                finish();
+                // Check the url or get a new one
+                new FindRSS(this, this).execute(url);
+
+                progressBar.setVisibility(View.VISIBLE);
             } else {
                 // Display an error message if some fields are empty
                 if (name.length() == 0) {
                     Toast.makeText(this, "Feed Name Empty", Toast.LENGTH_SHORT).show();
-                } else if (url.length() == 0){
+                } else if (url.length() == 0) {
                     Toast.makeText(this, "Feed URL Empty", Toast.LENGTH_SHORT).show();
                 }
             }
+        }
+    }
+
+    public void callback() {}
+
+    public void callback(String url) {
+        progressBar.setVisibility(View.GONE);
+        if (!"ERROR".equals(url)) {
+            String name = feedName.getText().toString().trim();
+            DatabaseHelper db = DatabaseHelper.getInstance(this);
+
+            // Either insert or edit feed
+            if (requestCode == 1) {
+                db.insertFeed(name, url, directoryID);
+            } else if (requestCode == 2) {
+                db.updateFeed(intent.getIntExtra("feedID", -1), name, url);
+            }
+
+            setResult(1);
+            finish();
+        } else {
+            // Display an error message if no feed was found
+            Toast.makeText(this, "No Feed Found", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -188,6 +188,8 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         }
     }
 
+    public void callback(String url) {}
+
     public void showToast(String text) {
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         toast.show();
