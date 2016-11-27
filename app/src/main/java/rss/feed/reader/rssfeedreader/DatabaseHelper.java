@@ -1,3 +1,11 @@
+/* **************************************************
+Author: Vlad Zat
+
+Created: 2016/11/12
+Modified: 2016/11/27
+************************************************** */
+
+
 package rss.feed.reader.rssfeedreader;
 
 import android.content.ContentValues;
@@ -15,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Name, Version and common Column Names
     private static final String DATABASE_NAME = "RSSDatabase";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 25;
     private static final String KEY_ID = "_id";
 
     // Articles Table
@@ -116,11 +124,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             // Set the Directory Types
             ContentValues typesValues1 = new ContentValues();
-            typesValues1.put(KEY_DIRECTORY_TYPE, "Saved Directories");
+            typesValues1.put(KEY_DIRECTORY_TYPE, "Read Later");
             db.insert(TABLE_DIRECTORY_TYPES, null, typesValues1);
 
             ContentValues typesValues2 = new ContentValues();
-            typesValues2.put(KEY_DIRECTORY_TYPE, "Feed Directories");
+            typesValues2.put(KEY_DIRECTORY_TYPE, "Feeds");
             db.insert(TABLE_DIRECTORY_TYPES, null, typesValues2);
 
             // Temp feeds

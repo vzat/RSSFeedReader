@@ -1,3 +1,10 @@
+/* **************************************************
+Author: Vlad Zat
+
+Created: 2016/11/21
+Modified: 2016/11/25
+************************************************** */
+
 package rss.feed.reader.rssfeedreader;
 
 import android.content.Intent;

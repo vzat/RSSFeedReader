@@ -1,3 +1,10 @@
+/* **************************************************
+Author: Vlad Zat
+
+Created: 2016/11/19
+Modified: 2016/11/20
+************************************************** */
+
 package rss.feed.reader.rssfeedreader;
 
 import android.content.Intent;
@@ -9,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 public class ArticleActivity extends AppCompatActivity {
@@ -32,9 +40,6 @@ public class ArticleActivity extends AppCompatActivity {
         articleDescription = intent.getStringExtra("articleDescription");
         articleLink = intent.getStringExtra("articleLink");
         articleDate = intent.getStringExtra("articleDate");
-
-//        Spanned span = Html.fromHtml(articleDescription);
-//        articleDescription = span.toString();
 
         // Get the textViews
         title = (TextView) findViewById(R.id.articleTitle);

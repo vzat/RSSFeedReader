@@ -1,15 +1,15 @@
+/* **************************************************
+Author: Vlad Zat
+
+Created: 2016/11/12
+Modified: 2016/11/13
+************************************************** */
+
 package rss.feed.reader.rssfeedreader;
 
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Whitelist;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.StringReader;
 import java.text.DateFormat;
@@ -136,10 +136,15 @@ public class XMLParser {
 
             // Strip the text of html tags
             if ("title".equals(tag) || "description".equals(tag) || "summary".equals(tag)) {
-                Document doc = Jsoup.parse(text);
-                text = doc.text();
+                // Convert html to string
+                text = Html.fromHtml(text).toString();
+                // Remove starting and ending tags
+                text = text.replaceAll("<[^>]+>", "");
+                text = text.replaceAll("<[^>]+/>", "");
+                // Remove html characters
+                text = text.replaceAll("&#\\w{2,4};", "");
+                text = text.replaceAll("&\\w{3,7};", "");
             }
-
             return text;
         } else {
             return null;

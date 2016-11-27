@@ -1,3 +1,10 @@
+/* **************************************************
+Author: Vlad Zat
+
+Created: 2016/11/26
+Modified: 2016/11/27
+************************************************** */
+
 package rss.feed.reader.rssfeedreader;
 
 import android.content.ActivityNotFoundException;
@@ -54,9 +61,10 @@ public class MyWebView extends AppCompatActivity {
                 setTitle(webView.getTitle());
             }
         });
-//        webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setDisplayZoomControls(false);
         webView.loadUrl(getIntent().getStringExtra("linkURL"));
     }
 

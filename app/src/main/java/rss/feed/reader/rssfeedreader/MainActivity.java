@@ -1,3 +1,10 @@
+/* **************************************************
+Author: Vlad Zat
+
+Created: 2016/11/12
+Modified: 2016/11/26
+************************************************** */
+
 package rss.feed.reader.rssfeedreader;
 
 import org.apache.commons.io.IOUtils;
@@ -58,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
                                                     new String[] {"directoryName"}, new int[] {R.id.directoryName}) {
             @Override
             protected Cursor getChildrenCursor(Cursor groupCursor) {
-                if ("Saved Directories".equals(groupCursor.getString(1))) {
+                if ("Read Later".equals(groupCursor.getString(1))) {
                     return db.getAllDirectories("Saved");
                 } else {
                     return db.getAllDirectories("Feed");
