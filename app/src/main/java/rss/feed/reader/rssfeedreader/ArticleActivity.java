@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Display an article
 
 Created: 2016/11/19
 Modified: 2016/11/20
@@ -73,6 +74,7 @@ public class ArticleActivity extends AppCompatActivity {
     }
 
     public void loadPage(View v) {
+        // If the link is pressed then open the webview
         String linkURL = ((TextView) v).getText().toString();
         Intent loadURL = new Intent(this, MyWebView.class);
         loadURL.putExtra("linkURL", linkURL);

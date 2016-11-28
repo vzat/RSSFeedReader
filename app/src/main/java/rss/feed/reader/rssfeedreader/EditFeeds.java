@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Display all the feeds from a directory
 
 Created: 2016/11/19
 Modified: 2016/11/20
@@ -16,9 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -66,12 +65,14 @@ public class EditFeeds extends AppCompatActivity {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Change the cursor to a new one if a feed has been edited
         if (requestCode == 1 || requestCode == 2) {
             if (resultCode == 1) {
                 adapter.changeCursor(db.getFeedsFromDirectory(directoryID));
             }
         }
 
+        // Display a message with the action performed
         if (resultCode != -1)
             if (requestCode == 1)
                 Toast.makeText(this, "Feed Added", Toast.LENGTH_SHORT).show();
@@ -125,8 +126,6 @@ public class EditFeeds extends AppCompatActivity {
                 startActivityForResult(editFeed, 2);
             }
             if (menuItemIndex == 1) {
-                // Delete Feed
-
                 // Delete the Directory
                 db.deleteFeed(feedID);
 

@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Encapsulates article information
 
 Created: 2016/11/12
 Modified: 2016/11/12

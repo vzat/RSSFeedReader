@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Provides an interface between the database an all the other classes
 
 Created: 2016/11/12
 Modified: 2016/11/27

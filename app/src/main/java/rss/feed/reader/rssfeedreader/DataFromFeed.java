@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Get articles from a feed in an asynchronous task
 
 Created: 2016/11/12
 Modified: 2016/11/13
@@ -39,6 +40,7 @@ public class DataFromFeed extends AsyncTask<Object, Void, Void> {
                 // The IOUtils method is from the external library Apache Commons IO
                 xml = IOUtils.toString(in, StandardCharsets.UTF_8);
 
+                // Store the articles in the database
                 ArrayList<Article> articles = XMLParser.getParserData(xml);
                 DatabaseHelper db = DatabaseHelper.getInstance(context);
                 if (articles != null)

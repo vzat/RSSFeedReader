@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Display all the articles in either feed directories or saved directories
 
 Created: 2016/11/19
 Modified: 2016/11/20
@@ -7,7 +8,6 @@ Modified: 2016/11/20
 
 package rss.feed.reader.rssfeedreader;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
@@ -32,7 +31,6 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     String directoryName, directoryType;
 
     DatabaseHelper db;
-//    ProgressBar progressBar;
     ListView listView;
     SimpleCursorAdapter adapter;
     SwipeRefreshLayout swipeRefresh;
@@ -41,9 +39,6 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_directory);
-
-//        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-//        progressBar.setVisibility(View.GONE);
 
         // Get data about this directory
         directoryID = this.getIntent().getIntExtra("directoryID", 0);
@@ -110,23 +105,18 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Refresh the articles shown if it's a saved directory
         if ((requestCode == 1 && "Saved".equals(directoryType)) || (requestCode == 2)) {
             adapter.swapCursor(db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType));
         }
-//        if (requestCode == 1 || requestCode == 2) {
-//            if (resultCode == 1) {
-//                refresh();
-//            }
-//        }
-//
-//        if (resultCode != -1)
-//            if (requestCode == 1)
-//                showToast("Feed Added");
-//            else
-//                showToast("Feed Edited");
+        // Show toast if filters have been changed
+        if (requestCode == 2 && resultCode == 1) {
+            showToast("Filters Applied");
+        }
     }
 
     public void onItemClick(AdapterView l, View v, int position, long id) {
+        // Go to the article pressed
         Cursor cursor = (Cursor) adapter.getItem(position);
 
         Intent goToArticle = new Intent(this, ArticleActivity.class);
@@ -172,8 +162,10 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     }
 
     public void callback() {
+        // Decrease the number of feeds waiting
         noFeeds --;
 
+        // Get the articles from the database if all the feeds are finished
         if (noFeeds == 0) {
             adapter.changeCursor(db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType));
 

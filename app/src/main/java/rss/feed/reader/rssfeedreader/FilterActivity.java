@@ -34,6 +34,7 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter);
 
         // Get the directoryID
+        setResult(-1);
         directoryID = this.getIntent().getIntExtra("directoryID", 0);
         setTitle(this.getIntent().getStringExtra("directoryName") + " Filters");
 
@@ -65,10 +66,12 @@ public class FilterActivity extends AppCompatActivity {
         if (requestCode == 1 && responseCode != -1) {
             adapter.swapCursor(db.getFilters(directoryID));
             Toast.makeText(this, "Filter Added", Toast.LENGTH_SHORT).show();
+            setResult(1);
         }
         if (requestCode == 2 && responseCode != -1) {
             adapter.swapCursor(db.getFilters(directoryID));
             Toast.makeText(this, "Filter Edited", Toast.LENGTH_SHORT).show();
+            setResult(1);
         }
     }
 
@@ -123,6 +126,7 @@ public class FilterActivity extends AppCompatActivity {
                 adapter.changeCursor(db.getFilters(directoryID));
 
                 Toast.makeText(this, "Filter " + filterName + " removed", Toast.LENGTH_SHORT).show();
+                setResult(1);
             }
 
         }

@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Add a new filter to the current directory
 
 Created: 2016/11/22
 Modified: 2016/11/25
@@ -54,11 +55,13 @@ public class AddFilter extends AppCompatActivity implements View.OnClickListener
             String content = filterName.getText().toString().trim();
             if (content.length() > 0) {
                 if (requestCode != 2) {
+                    // Insert a new filter
                     if (db.insertFilter(content, directoryID) > 0)
                         setResult(0);
                     else
                         setResult(-1);
                 } else {
+                    // Update the filter
                     if (db.updateFilter(this.getIntent().getIntExtra("filterID", -1), content) > 0)
                         setResult(0);
                     else

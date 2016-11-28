@@ -1,8 +1,7 @@
 /* **************************************************
 Author: Vlad Zat
 
-Created: 2016/11/12
-Modified: 2016/11/13
+Created: 2016/11/27
 ************************************************** */
 
 package rss.feed.reader.rssfeedreader;

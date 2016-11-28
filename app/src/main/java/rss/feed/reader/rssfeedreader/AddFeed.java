@@ -1,10 +1,10 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Add a new feed to the current directory
 
 Created: 2016/11/19
 Modified: 2016/11/20
 ************************************************** */
-
 
 package rss.feed.reader.rssfeedreader;
 
@@ -30,10 +30,9 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_feed);
 
+        // Setup the activity
         setResult(-1);
-
         setTitle("Add Feed");
-
         intent = getIntent();
         requestCode = intent.getIntExtra("requestCode", 1);
         directoryID = intent.getIntExtra("directoryID", 1);
@@ -44,6 +43,7 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener, 
         progressBar = (ProgressBar) findViewById(R.id.loadingFeed);
         progressBar.setVisibility(View.GONE);
 
+        // Specific settings if the feed is edited
         if (requestCode == 2) {
             feedName.setText(intent.getStringExtra("feedName"));
             feedName.setSelection(intent.getStringExtra("feedName").length());

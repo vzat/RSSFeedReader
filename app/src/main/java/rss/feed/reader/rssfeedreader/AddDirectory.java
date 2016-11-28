@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Add a new saved of feed directory to the database
 
 Created: 2016/11/12
 Modified: 2016/11/20
@@ -8,8 +9,6 @@ Modified: 2016/11/20
 package rss.feed.reader.rssfeedreader;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -40,10 +39,12 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
         addDirectory = (Button) findViewById(R.id.add);
         addDirectory.setOnClickListener(this);
 
+        // Settings for editing a Directory
         if (requestCode == 2) {
             setTitle("Edit Directory");
             addDirectory.setText("Edit Directory");
 
+            // Hide the radio buttons and set directory name
             directoryName.setText(intent.getStringExtra("directoryName"));
             directoryName.setSelection(intent.getStringExtra("directoryName").length());
             RadioButton savedRadio = (RadioButton) findViewById(R.id.saved);
@@ -60,6 +61,7 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
     }
 
     public void radioClick(View v) {
+        // Get the radio button pressed
         if (((RadioButton)v).isChecked() && requestCode == 1) {
             if (v.getId() == R.id.saved)
                 radioButton = 0;
@@ -88,6 +90,7 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
                     db.updateDirectory(intent.getIntExtra("directoryID", -1), content, directoryType);
                 }
 
+                // Send back a result with the type of directory created
                 setResult(radioButton);
                 finish();
             }
