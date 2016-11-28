@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Main Page where it displays all the directories
 
 Created: 2016/11/12
 Modified: 2016/11/26
@@ -7,41 +8,20 @@ Modified: 2016/11/26
 
 package rss.feed.reader.rssfeedreader;
 
-import org.apache.commons.io.IOUtils;
-
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity implements View.OnCreateContextMenuListener, ExpandableListView.OnChildClickListener {
-
-    int noFeeds;
     ExpandableListView expandableListView;
     SimpleCursorTreeAdapter treeAdapter;
     Cursor directoryTypes;
@@ -51,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Directories");
 
         // Get Directory Types, Saved and Feed Directories
         db = DatabaseHelper.getInstance(this);
@@ -80,28 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
         expandableListView.setAdapter(treeAdapter);
         expandableListView.setOnChildClickListener(this);
         registerForContextMenu(expandableListView);
-
-        // Temp add Feeds
-//        Cursor feedDir = db.getAllDirectories("Feed");
-//        feedDir.moveToNext();
-//        db.insertFeed("Reddit", "https://www.reddit.com/.rss", feedDir.getInt(0));
-//        db.insertFeed("RTE", "http://www.rte.ie/news/rss/news-headlines.xml", feedDir.getInt(0));
-
-//        expandableListView.setOnClickListener(new ExpandableListView.OnChildClickListener() {
-//            public boolean onChildClick(ExpandableListView l, View v, int groupPos, int childPos, long id) {
-//                    showToast("Hello");
-//                  return true;
-//            }
-//        });
-
-
-
-//        DatabaseHelper db = DatabaseHelper.getInstance(this);
-//        db.deleteArticlesFromDirectory(1);
-//        new DataFromFeed(this, this).execute("https://www.reddit.com/.rss");
-//        new DataFromFeed(this, this).execute("http://www.rte.ie/news/rss/news-headlines.xml");
-//
-//        noFeeds = 2;
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -122,12 +81,14 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 || requestCode == 2) {
+            // Update the cursor for the type of directory created or edited
             if (resultCode == 0) {
                 treeAdapter.setChildrenCursor(0, db.getAllDirectories("Saved"));
             } else if (resultCode == 1) {
                 treeAdapter.setChildrenCursor(1, db.getAllDirectories("Feed"));
             }
 
+            // Display message if a directory was added or edited
             if (resultCode != -1)
                 if (requestCode == 1)
                     showToast("Directory Added");
@@ -139,17 +100,12 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
     public boolean onChildClick(ExpandableListView l, View v, int groupPosition, int childPosition, long id) {
         Cursor directorySelected = treeAdapter.getChild(groupPosition, childPosition);
 
-//        if ("Feed".equals(directorySelected.getString(2))) {
-            Intent goToDirectory = new Intent(this, FeedDirectory.class);
-            goToDirectory.putExtra("directoryID", directorySelected.getInt(0));
-            goToDirectory.putExtra("directoryName", directorySelected.getString(1));
-            goToDirectory.putExtra("directoryType", directorySelected.getString(2));
-            startActivity(goToDirectory);
-//        } else if ("Saved".equals(directorySelected.getString(2))) {
-//
-//        }
-
-
+        // Go to the directory selected
+        Intent goToDirectory = new Intent(this, FeedDirectory.class);
+        goToDirectory.putExtra("directoryID", directorySelected.getInt(0));
+        goToDirectory.putExtra("directoryName", directorySelected.getString(1));
+        goToDirectory.putExtra("directoryType", directorySelected.getString(2));
+        startActivity(goToDirectory);
 
         return true;
     }
@@ -169,10 +125,9 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
                 // Set the Context Menu Header to the Directory Name
                 contextMenu.setHeaderTitle(directorySelected.getString(1));
 
+                // Get the Context Menu Options and create it
 
                 // Reference the following code is from https://www.mikeplate.com/2010/01/21/show-a-context-menu-for-long-clicks-in-an-android-listview/
-
-                // Get the Context Menu Options create it
                 String[] menuItems = getResources().getStringArray(R.array.contextMenu);
                 for (int i = 0; i < menuItems.length; i++) {
                     contextMenu.add(Menu.NONE, i, i, menuItems[i]);
@@ -234,25 +189,4 @@ public class MainActivity extends AppCompatActivity implements View.OnCreateCont
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         toast.show();
     }
-
-//    public void callback() {
-//        noFeeds --;
-//
-//        if (noFeeds == 0) {
-//            DatabaseHelper db = DatabaseHelper.getInstance(this);
-//            Cursor cursorArticles = db.getAllArticles();
-//
-//            try {
-//                while (cursorArticles.moveToNext()) {
-//                    Log.d("Cursor: ",   "Title: " + cursorArticles.getString(1) +
-//                                        ", Description: " + cursorArticles.getString(2) +
-//                                        ", Link: " + cursorArticles.getString(3) +
-//                                        ", Date: " + cursorArticles.getString(4));
-//                }
-//            } finally {
-//                cursorArticles.close();
-//            }
-//            db.closeDBs();
-//        }
-//    }
 }

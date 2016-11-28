@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Display the filters from the current directory
 
 Created: 2016/11/21
 Modified: 2016/11/25

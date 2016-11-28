@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Display a web page
 
 Created: 2016/11/26
 Modified: 2016/11/27
@@ -61,10 +62,14 @@ public class MyWebView extends AppCompatActivity {
                 setTitle(webView.getTitle());
             }
         });
+
+        // Settings for the web view
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
+
+        // Load the url
         webView.loadUrl(getIntent().getStringExtra("linkURL"));
     }
 

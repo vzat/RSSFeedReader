@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Save an article to a saved directory
 
 Created: 2016/11/19
 Modified: 2016/11/20
@@ -19,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class SaveArticle extends AppCompatActivity implements ListView.OnItemClickListener {
@@ -32,6 +32,7 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
     int articleID;
     int savedDirectoryID;
 
+    // Custom adapter to show the directory name and a radio button next to it
     private class CursorRadioAdapter extends CursorAdapter {
         int savedDirectoryID;
 
@@ -48,6 +49,7 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
             TextView textView = (TextView) view.findViewById(R.id.savedDirectory);
             textView.setText(cursor.getString(1));
 
+            // Check the corresponding directory name if the article is already saved in a directory
             if (savedDirectoryID != -1 && savedDirectoryID == cursor.getInt(0)) {
                 RadioButton radioButton = (RadioButton) view.findViewById(R.id.radio);
                 radioButton.setChecked(true);
@@ -69,7 +71,6 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
 
         // Set up listView
         listView = (ListView) findViewById(R.id.list);
-//        adapter = new SimpleCursorAdapter(this, R.layout.row_save_article, db.getAllDirectories("Saved"), new String[] {"directoryName"}, new int[] {R.id.savedDirectory}, 0);
         adapter = new CursorRadioAdapter(this, db.getAllDirectories("Saved"), savedDirectoryID);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
@@ -78,8 +79,7 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
     public void onItemClick(AdapterView l, View v, int position, long id) {
         Cursor cursor = (Cursor) adapter.getItem(position);
 
-        //savedDirectoryID = cursor.getInt(0);
-
+        // Deselect all the radio buttons
         // Reference the following code is from http://stackoverflow.com/questions/8337180/custom-single-choice-listview
         for (int i = 0 ; i < l.getCount() ; i++) {
             RadioButton radioButton = (RadioButton) l.getChildAt(i).findViewById(R.id.radio);
@@ -87,6 +87,7 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
         }
         // Reference Complete
 
+        // Check only the radio button pressed
         if (cursor.getInt(0) != savedDirectoryID) {
             RadioButton radioButton = (RadioButton) v.findViewById(R.id.radio);
             radioButton.setChecked(true);

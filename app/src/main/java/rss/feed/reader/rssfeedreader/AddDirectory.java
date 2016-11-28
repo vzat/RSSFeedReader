@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 public class AddDirectory extends AppCompatActivity implements View.OnClickListener {
     EditText directoryName;
@@ -93,6 +94,8 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
                 // Send back a result with the type of directory created
                 setResult(radioButton);
                 finish();
+            } else {
+                Toast.makeText(this, "Empty Directory Name", Toast.LENGTH_SHORT).show();
             }
         }
     }

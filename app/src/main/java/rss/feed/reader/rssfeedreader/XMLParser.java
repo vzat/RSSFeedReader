@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Parse XML from a String
 
 Created: 2016/11/12
 Modified: 2016/11/13
@@ -8,10 +9,8 @@ Modified: 2016/11/13
 package rss.feed.reader.rssfeedreader;
 
 import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 
-import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

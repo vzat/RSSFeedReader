@@ -1,5 +1,6 @@
 /* **************************************************
 Author: Vlad Zat
+Description: Checks if a link contains a valid RSS Feed, otherwise it tries to find one
 
 Created: 2016/11/27
 ************************************************** */
@@ -19,7 +20,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-// AsyncTask<Params, Progress, Result>
 public class FindRSS extends AsyncTask<String, Void, String> {
     TaskComplete taskComplete;
     Context context;
