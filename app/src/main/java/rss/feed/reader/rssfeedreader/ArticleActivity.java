@@ -8,7 +8,10 @@ Modified: 2016/11/20
 
 package rss.feed.reader.rssfeedreader;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -19,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ArticleActivity extends AppCompatActivity {
     Intent intent;
@@ -67,18 +71,32 @@ public class ArticleActivity extends AppCompatActivity {
             Intent saveArticle = new Intent(this, SaveArticle.class);
             saveArticle.putExtra("articleID", articleID);
             saveArticle.putExtra("articleTitle", articleTitle);
-            startActivity(saveArticle);
+            startActivityForResult(saveArticle, 1);
             return true;
         }
         return false;
     }
 
+    public void onActivityResult(int request, int response, Intent data) {
+        if (request == 1 && response == 1) {
+            Toast.makeText(this, "Article Saved", Toast.LENGTH_SHORT).show();
+        } else if (request == 1 && response == 0) {
+            Toast.makeText(this, "Article Removed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void loadPage(View v) {
-        // If the link is pressed then open the webview
-        String linkURL = ((TextView) v).getText().toString();
-        Intent loadURL = new Intent(this, MyWebView.class);
-        loadURL.putExtra("linkURL", linkURL);
-        loadURL.putExtra("articleTitle", articleTitle);
-        startActivity(loadURL);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // If the link is pressed then open the webview
+            String linkURL = ((TextView) v).getText().toString();
+            Intent loadURL = new Intent(this, MyWebView.class);
+            loadURL.putExtra("linkURL", linkURL);
+            loadURL.putExtra("articleTitle", articleTitle);
+            startActivity(loadURL);
+        } else {
+            Toast.makeText(this, "No Network Connection Available", Toast.LENGTH_SHORT);
+        }
     }
 }

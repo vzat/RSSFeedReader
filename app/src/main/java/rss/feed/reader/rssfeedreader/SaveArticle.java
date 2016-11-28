@@ -61,6 +61,7 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_save_article);
+        setResult(-1);
 
         // Set up initial values for the article and saved directory
         db = DatabaseHelper.getInstance(this);
@@ -92,8 +93,10 @@ public class SaveArticle extends AppCompatActivity implements ListView.OnItemCli
             RadioButton radioButton = (RadioButton) v.findViewById(R.id.radio);
             radioButton.setChecked(true);
             savedDirectoryID = cursor.getInt(0);
+            setResult(1);
         } else {
             savedDirectoryID = -1;
+            setResult(0);
         }
     }
 

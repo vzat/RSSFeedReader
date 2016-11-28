@@ -95,7 +95,7 @@ public class AddDirectory extends AppCompatActivity implements View.OnClickListe
                 setResult(radioButton);
                 finish();
             } else {
-                Toast.makeText(this, "Empty Directory Name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Directory Name Empty", Toast.LENGTH_SHORT).show();
             }
         }
     }

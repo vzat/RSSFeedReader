@@ -8,7 +8,10 @@ Modified: 2016/11/20
 
 package rss.feed.reader.rssfeedreader;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -61,17 +64,25 @@ public class AddFeed extends AppCompatActivity implements View.OnClickListener, 
             String url = feedURL.getText().toString().trim();
 
             if (name.length() > 0 && url.length() > 0) {
-                // Add https in front of the link if there is none or modify it if it's not secure
-                if (!url.contains("http")) {
-                    url = "https://" + url;
-                } else if (!url.contains("https")) {
-                    url = url.replace("http", "https");
+                // Check if there is a network connection
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    // Add https in front of the link if there is none or modify it if it's not secure
+                    if (!url.contains("http")) {
+                        url = "https://" + url;
+                    } else if (!url.contains("https")) {
+                        url = url.replace("http", "https");
+                    }
+
+                    // Check the url or get a new one
+                    new FindRSS(this, this).execute(url);
+
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    Toast.makeText(this, "No Network Connection Available \nFeed may be invalid", Toast.LENGTH_SHORT).show();
+                    callback(url);
                 }
-
-                // Check the url or get a new one
-                new FindRSS(this, this).execute(url);
-
-                progressBar.setVisibility(View.VISIBLE);
             } else {
                 // Display an error message if some fields are empty
                 if (name.length() == 0) {

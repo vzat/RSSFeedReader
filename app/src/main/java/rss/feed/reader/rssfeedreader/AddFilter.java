@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class AddFilter extends AppCompatActivity implements View.OnClickListener {
     int directoryID;
@@ -67,10 +68,11 @@ public class AddFilter extends AppCompatActivity implements View.OnClickListener
                     else
                         setResult(-1);
                 }
+                finish();
             } else {
+                Toast.makeText(this, "Filter Empty", Toast.LENGTH_SHORT).show();
                 setResult(-1);
             }
-            finish();
         }
     }
 }

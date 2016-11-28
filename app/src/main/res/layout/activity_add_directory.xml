@@ -27,7 +27,7 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:text="Saved Directory"
+            android:text="Read Later Directory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,7 +35,7 @@
             android:onClick="radioClick"/>
 
         <RadioButton
-            android:text="Feed Directory"
+            android:text="Feeds Directory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
