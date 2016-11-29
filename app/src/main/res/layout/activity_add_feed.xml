@@ -25,7 +25,7 @@
         android:ems="10"
         android:id="@+id/feedURL"
         android:hint="Feed URL"
-        android:inputType="textWebEditText" />
+        android:inputType="textUri" />
 
     <Button
         android:text="Add Feed"

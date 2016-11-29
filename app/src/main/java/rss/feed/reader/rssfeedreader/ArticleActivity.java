@@ -99,7 +99,7 @@ public class ArticleActivity extends AppCompatActivity {
             loadURL.putExtra("articleTitle", articleTitle);
             startActivity(loadURL);
         } else {
-            Toast.makeText(this, "No Network Connection Available", Toast.LENGTH_SHORT);
+            Toast.makeText(this, "No Network Connection Available", Toast.LENGTH_SHORT).show();
         }
     }
 
