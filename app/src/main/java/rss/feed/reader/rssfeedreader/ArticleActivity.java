@@ -19,17 +19,20 @@ import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class ArticleActivity extends AppCompatActivity {
-    Intent intent;
-    int articleID;
-    String articleTitle, articleDescription, articleLink, articleDate;
+    private Intent intent;
+    private int articleID;
+    private String articleTitle, articleDescription, articleLink, articleDate;
 
-    TextView title, description, link, date;
+    private TextView title, description, link, date;
+
+    private float touchPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,5 +101,30 @@ public class ArticleActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No Network Connection Available", Toast.LENGTH_SHORT);
         }
+    }
+
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        // Unblock the touchEvent because of the scrollView
+        super.dispatchTouchEvent(event);
+        return onTouchEvent(event);
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // Get the position where the screen was touched
+            touchPos = event.getX();
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            // Calculate the distance swiped by the finger
+            if (event.getX() - touchPos > 300) {
+                // Swipe Left
+                setResult(1);
+                finish();
+            } else if (event.getX() - touchPos < -300) {
+                // Swipe Right
+                setResult(2);
+                finish();
+            }
+        }
+        return super.onTouchEvent(event);
     }
 }

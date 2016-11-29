@@ -11,6 +11,10 @@ package rss.feed.reader.rssfeedreader;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,26 +23,36 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-public class FeedDirectory extends AppCompatActivity implements TaskComplete, ListView.OnItemClickListener {
-    int noFeeds;
-    int directoryID;
-    String directoryName, directoryType;
+public class FeedDirectory extends AppCompatActivity implements TaskComplete, ListView.OnItemClickListener, SensorEventListener {
+    private int noFeeds;
+    private int directoryID;
+    private String directoryName, directoryType;
 
-    DatabaseHelper db;
-    ListView listView;
-    SimpleCursorAdapter adapter;
-    SwipeRefreshLayout swipeRefresh;
+    private DatabaseHelper db;
+    private ListView listView;
+    private SimpleCursorAdapter adapter;
+    private SwipeRefreshLayout swipeRefresh;
+
+    private SensorManager sensorManager;
+    private float curAcc, lastAcc;
+
+    private int articlePosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_directory);
+
+        // Set up sensor
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        curAcc = lastAcc = sensorManager.GRAVITY_EARTH;
 
         // Get data about this directory
         directoryID = this.getIntent().getIntExtra("directoryID", 0);
@@ -54,7 +68,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
             public void onRefresh() {
                 refresh();
             }
-});
+        });
         listView = (ListView) findViewById(R.id.list);
         db = DatabaseHelper.getInstance(this);
         adapter = new SimpleCursorAdapter(this, R.layout.row_article_expanded, db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType), new String[] {"title", "description"}, new int[] {R.id.articleTitle, R.id.articleDescription}, 0);
@@ -78,6 +92,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if ("Feed".equals(directoryType)) {
             if (menuItem.getItemId() == R.id.refreshDirectory) {
+                // Refresh Articles
                 swipeRefresh.post(new Runnable() {
                     public void run() {
                         swipeRefresh.setRefreshing(true);
@@ -87,6 +102,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
                 return true;
             }
             if (menuItem.getItemId() == R.id.editFeed) {
+                // Edit Feeds
                 Intent editFeed = new Intent(this, EditFeeds.class);
                 editFeed.putExtra("directoryID", directoryID);
                 editFeed.putExtra("directoryName", directoryName);
@@ -94,6 +110,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
                 return true;
             }
             if (menuItem.getItemId() == R.id.editFilters) {
+                // Edit Filters
                 Intent editFilters = new Intent(this, FilterActivity.class);
                 editFilters.putExtra("directoryID", directoryID);
                 editFilters.putExtra("directoryName", directoryName);
@@ -105,10 +122,23 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Go to the previous article
+        if (requestCode == 1 && resultCode == 1) {
+            articlePosition = (articlePosition - 1) < 0 ? adapter.getCount() - 1 : articlePosition - 1;
+            onItemClick(listView, listView, articlePosition, 0);
+        }
+
+        // Go to the next article
+        if (requestCode == 1 && resultCode == 2) {
+            articlePosition = (articlePosition + 1) >= adapter.getCount() ? 0 : articlePosition + 1;
+            onItemClick(listView, listView, articlePosition, 0);
+        }
+
         // Refresh the articles shown if it's a saved directory
         if ((requestCode == 1 && "Saved".equals(directoryType)) || (requestCode == 2)) {
             adapter.swapCursor(db.getAllArticlesFromDirectoryFiltered(directoryID, directoryType));
         }
+
         // Show toast if filters have been changed
         if (requestCode == 2 && resultCode == 1) {
             showToast("Filters Applied");
@@ -118,6 +148,7 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     public void onItemClick(AdapterView l, View v, int position, long id) {
         // Go to the article pressed
         Cursor cursor = (Cursor) adapter.getItem(position);
+        articlePosition = position;
 
         Intent goToArticle = new Intent(this, ArticleActivity.class);
         goToArticle.putExtra("articleID", cursor.getInt(0));
@@ -127,6 +158,9 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         goToArticle.putExtra("articleDate", cursor.getString(4));
 
         startActivityForResult(goToArticle, 1);
+//        if (id == -1) {
+//            overridePendingTransition();
+//        }
     }
 
     public void refresh() {
@@ -185,5 +219,38 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     public void showToast(String text) {
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        float x = sensorEvent.values[0];
+        float y = sensorEvent.values[1];
+        float z = sensorEvent.values[2];
+
+        lastAcc = curAcc;
+        curAcc = (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+        float delta = Math.abs(curAcc - lastAcc);
+
+        if (delta > 30) {
+            swipeRefresh.post(new Runnable() {
+                public void run() {
+                    swipeRefresh.setRefreshing(true);
+                }
+            });
+            refresh();
+        }
+    }
+
+    public void onResume() {
+        super.onResume();
+        // Enable Sensor
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensorManager.SENSOR_DELAY_UI);
+    }
+
+    public void onPause() {
+        // Disable Sensor
+        sensorManager.unregisterListener(this);
+        super.onPause();
     }
 }
