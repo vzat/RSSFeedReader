@@ -23,14 +23,14 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 public class SaveArticle extends AppCompatActivity implements ListView.OnItemClickListener {
-    Intent intent;
+    private Intent intent;
 
-    ListView listView;
-    CursorRadioAdapter adapter;
-    DatabaseHelper db;
+    private ListView listView;
+    private CursorRadioAdapter adapter;
+    private DatabaseHelper db;
 
-    int articleID;
-    int savedDirectoryID;
+    private int articleID;
+    private int savedDirectoryID;
 
     // Custom adapter to show the directory name and a radio button next to it
     private class CursorRadioAdapter extends CursorAdapter {

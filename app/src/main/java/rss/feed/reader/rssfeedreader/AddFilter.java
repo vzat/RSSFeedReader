@@ -16,13 +16,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class AddFilter extends AppCompatActivity implements View.OnClickListener {
-    int directoryID;
-    int requestCode;
+    private int directoryID;
+    private int requestCode;
 
-    EditText filterName;
-    Button addFilter;
+    private EditText filterName;
+    private Button addFilter;
 
-    DatabaseHelper db;
+    private DatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

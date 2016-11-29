@@ -21,12 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class AddFeed extends AppCompatActivity implements View.OnClickListener, TaskComplete {
-    Intent intent;
-    int requestCode;
-    int directoryID;
-    EditText feedName, feedURL;
-    Button addFeed;
-    ProgressBar progressBar;
+    private Intent intent;
+    private int requestCode;
+    private int directoryID;
+    private EditText feedName, feedURL;
+    private Button addFeed;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

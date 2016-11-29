@@ -18,11 +18,11 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 public class AddDirectory extends AppCompatActivity implements View.OnClickListener {
-    EditText directoryName;
-    int radioButton;
-    int requestCode;
-    Button addDirectory;
-    Intent intent;
+    private EditText directoryName;
+    private int radioButton;
+    private int requestCode;
+    private Button addDirectory;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

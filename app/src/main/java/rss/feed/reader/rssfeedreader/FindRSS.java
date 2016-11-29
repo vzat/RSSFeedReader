@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class FindRSS extends AsyncTask<String, Void, String> {
-    TaskComplete taskComplete;
-    Context context;
+    private TaskComplete taskComplete;
+    private Context context;
 
     public FindRSS(TaskComplete taskComplete, Context context) {
         this.taskComplete = taskComplete;

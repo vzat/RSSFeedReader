@@ -23,11 +23,11 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 public class FilterActivity extends AppCompatActivity {
-    ListView listView;
-    SimpleCursorAdapter adapter;
-    DatabaseHelper db;
+    private ListView listView;
+    private SimpleCursorAdapter adapter;
+    private DatabaseHelper db;
 
-    int directoryID;
+    private int directoryID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

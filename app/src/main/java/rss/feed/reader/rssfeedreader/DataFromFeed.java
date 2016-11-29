@@ -23,8 +23,8 @@ import java.util.ArrayList;
 
 // AsyncTask<Params, Progress, Result>
 public class DataFromFeed extends AsyncTask<Object, Void, Void> {
-    TaskComplete taskComplete;
-    Context context;
+    private TaskComplete taskComplete;
+    private Context context;
 
     public DataFromFeed(TaskComplete taskComplete, Context context) {
         this.taskComplete = taskComplete;

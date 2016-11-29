@@ -22,10 +22,10 @@ import android.widget.SimpleCursorTreeAdapter;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnCreateContextMenuListener, ExpandableListView.OnChildClickListener {
-    ExpandableListView expandableListView;
-    SimpleCursorTreeAdapter treeAdapter;
-    Cursor directoryTypes;
-    DatabaseHelper db;
+    private ExpandableListView expandableListView;
+    private SimpleCursorTreeAdapter treeAdapter;
+    private Cursor directoryTypes;
+    private DatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

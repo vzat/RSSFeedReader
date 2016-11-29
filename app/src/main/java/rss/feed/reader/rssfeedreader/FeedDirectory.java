@@ -125,13 +125,13 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         // Go to the previous article
         if (requestCode == 1 && resultCode == 1) {
             articlePosition = (articlePosition - 1) < 0 ? adapter.getCount() - 1 : articlePosition - 1;
-            onItemClick(listView, listView, articlePosition, 0);
+            onItemClick(listView, listView, articlePosition, -2);
         }
 
         // Go to the next article
         if (requestCode == 1 && resultCode == 2) {
             articlePosition = (articlePosition + 1) >= adapter.getCount() ? 0 : articlePosition + 1;
-            onItemClick(listView, listView, articlePosition, 0);
+            onItemClick(listView, listView, articlePosition, -1);
         }
 
         // Refresh the articles shown if it's a saved directory
@@ -158,9 +158,6 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
         goToArticle.putExtra("articleDate", cursor.getString(4));
 
         startActivityForResult(goToArticle, 1);
-//        if (id == -1) {
-//            overridePendingTransition();
-//        }
     }
 
     public void refresh() {
@@ -245,12 +242,16 @@ public class FeedDirectory extends AppCompatActivity implements TaskComplete, Li
     public void onResume() {
         super.onResume();
         // Enable Sensor
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensorManager.SENSOR_DELAY_UI);
+        if ("Feed".equals(directoryType)) {
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensorManager.SENSOR_DELAY_UI);
+        }
     }
 
     public void onPause() {
         // Disable Sensor
-        sensorManager.unregisterListener(this);
+        if ("Feed".equals(directoryType)) {
+            sensorManager.unregisterListener(this);
+        }
         super.onPause();
     }
 }

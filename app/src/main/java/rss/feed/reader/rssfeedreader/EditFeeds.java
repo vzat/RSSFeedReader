@@ -23,12 +23,12 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 public class EditFeeds extends AppCompatActivity {
-    Intent intent;
-    ListView listView;
-    SimpleCursorAdapter adapter;
-    DatabaseHelper db;
+    private Intent intent;
+    private ListView listView;
+    private SimpleCursorAdapter adapter;
+    private DatabaseHelper db;
 
-    int directoryID;
+    private int directoryID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
